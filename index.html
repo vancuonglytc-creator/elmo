@@ -56,7 +56,6 @@
   </div>
 
   <script>
-    // Dán URL Web App của bạn vào đây
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcGIv7WOnsdezBj1aBqqjfkPqTiLCbBM1AUfNf3JhYGfuq2uiWeszeHnHZeN7pgg6RvQ/exec";
 
     const form = document.getElementById('searchForm');
@@ -67,7 +66,7 @@
     const btnSearch = document.getElementById('btnSearch');
 
     function getStatusBadgeClass(status) {
-      const s = status.toLowerCase();
+      const s = String(status || '').toLowerCase();
       if (s.includes('hợp lệ') || s.includes('thành công') || s.includes('đã duyệt') || s.includes('hoàn tất')) {
         return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       } else if (s.includes('chờ') || s.includes('đang')) {
@@ -94,7 +93,7 @@
         loading.classList.add('hidden');
         btnSearch.disabled = false;
 
-        if (res.success && res.data.length > 0) {
+        if (res.success && res.data && res.data.length > 0) {
           res.data.forEach((item) => {
             const card = document.createElement('div');
             card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
@@ -105,33 +104,33 @@
               <div class="flex items-center justify-between border-b pb-3">
                 <div>
                   <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Mã hồ sơ</span>
-                  <span class="text-base font-bold text-blue-700 tracking-wide">${item.profileCode}</span>
+                  <span class="text-base font-bold text-blue-700 tracking-wide">${item.profileCode || '—'}</span>
                 </div>
                 <span class="border px-3 py-1 rounded-full text-xs font-semibold ${badgeClass}">
-                  ${item.status}
+                  ${item.status || '—'}
                 </span>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Họ và tên thí sinh</span>
-                  <p class="font-bold text-lg text-slate-900">${item.fullName}</p>
+                  <p class="font-bold text-lg text-slate-900">${item.fullName || '—'}</p>
                 </div>
                 <div>
                   <span class="text-slate-400 text-xs block">Bảng đăng ký dự thi</span>
-                  <p class="font-medium text-slate-800">${item.group}</p>
+                  <p class="font-medium text-slate-800">${item.group || '—'}</p>
                 </div>
                 <div>
                   <span class="text-slate-400 text-xs block">Họ và tên bố hoặc mẹ</span>
-                  <p class="font-medium text-slate-800">${item.parentName}</p>
+                  <p class="font-medium text-slate-800">${item.parentName || '—'}</p>
                 </div>
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Tên trường</span>
-                  <p class="font-medium text-slate-800">${item.schoolName}</p>
+                  <p class="font-medium text-slate-800">${item.schoolName || '—'}</p>
                 </div>
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Địa điểm thi</span>
-                  <p class="font-semibold text-slate-800">${item.venue}</p>
+                  <p class="font-semibold text-slate-800">${item.venue || '—'}</p>
                 </div>
               </div>
             `;
