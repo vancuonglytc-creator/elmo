@@ -16,7 +16,7 @@
 
     <!-- Search Box -->
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
-      <form id="searchForm" class="space-y-4">
+      <form id="searchForm" class="space-y-3">
         <div>
           <label for="phone" class="block text-sm font-semibold text-slate-700 mb-1">
             Số điện thoại liên hệ đã đăng ký:
@@ -26,7 +26,7 @@
             id="phone" 
             placeholder="Ví dụ: 0912345678" 
             required 
-            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none mb-1"
           >
         </div>
         <button 
@@ -36,6 +36,19 @@
         >
           Tra cứu kết quả
         </button>
+
+        <!-- Nút Liên hệ Ban Tổ chức -->
+        <a 
+          href="https://zalo.me/khoahoctre" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          class="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl transition duration-200 shadow-sm"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Liên hệ Ban Tổ chức (Zalo)
+        </a>
       </form>
     </div>
 
