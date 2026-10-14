@@ -68,7 +68,7 @@
     function getStatusBadgeClass(status) {
       const s = String(status || '').toLowerCase().trim();
 
-      // 1. Tô ĐỎ: Đăng ký không hợp lệ, trùng dữ liệu (hoặc các trạng thái từ chối, hủy, loại)
+      // 1. Tô ĐỎ: Đăng ký không hợp lệ, trùng dữ liệu
       if (
         s.includes('không hợp lệ') || 
         s.includes('trùng dữ liệu') || 
@@ -80,7 +80,7 @@
         return 'bg-rose-50 text-rose-700 border-rose-300 font-bold';
       }
 
-      // 2. Tô CAM: Chưa hoàn tất lệ phí dự thi (hoặc các trạng thái chờ học phí/lệ phí)
+      // 2. Tô CAM: Chưa hoàn tất lệ phí dự thi
       if (
         s.includes('chưa hoàn tất lệ phí') || 
         s.includes('lệ phí') || 
@@ -90,12 +90,12 @@
         return 'bg-orange-50 text-orange-700 border-orange-300 font-bold';
       }
 
-      // 3. Tô VÀNG: Trạng thái đang chờ xác nhận / xử lý chung
+      // 3. Tô VÀNG: Trạng thái chờ xử lý chung
       if (s.includes('chờ') || s.includes('đang')) {
         return 'bg-amber-50 text-amber-700 border-amber-300 font-medium';
       }
 
-      // 4. Tô XANH LÁ: Hợp lệ / Đã duyệt / Thành công
+      // 4. Tô XANH LÁ: Hợp lệ / Đã duyệt / Đã xác nhận
       if (
         s.includes('hợp lệ') || 
         s.includes('thành công') || 
@@ -144,9 +144,13 @@
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <div class="sm:col-span-2">
+                <div>
                   <span class="text-slate-400 text-xs block">Họ và tên thí sinh</span>
                   <p class="font-bold text-lg text-slate-900">${item.fullName || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Ngày tháng năm sinh</span>
+                  <p class="font-bold text-base text-blue-900">${item.dob || '—'}</p>
                 </div>
                 <div>
                   <span class="text-slate-400 text-xs block">Bảng đăng ký dự thi</span>
@@ -159,6 +163,10 @@
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Tên trường</span>
                   <p class="font-medium text-slate-800">${item.schoolName || '—'}</p>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-slate-400 text-xs block">Địa chỉ trường (Phường, xã, đặc khu)</span>
+                  <p class="font-medium text-slate-800">${item.schoolLocation || '—'}</p>
                 </div>
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Địa điểm thi</span>
