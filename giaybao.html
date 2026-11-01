@@ -16,16 +16,21 @@
       font-family: 'Times New Roman', Times, serif;
     }
     .pdf-table td {
-      border: 1px solid #000;
-      padding: 6px 10px;
+      border: 1.5px solid #1e3a8a;
+      padding: 5px 10px;
       vertical-align: middle;
-      font-size: 13.5px;
-      line-height: 1.35;
+      font-size: 13px;
+      line-height: 1.3;
     }
     .label-cell {
-      background-color: #f1f5f9;
+      background-color: #eff6ff;
       font-weight: bold;
       width: 32%;
+      color: #1e3a8a;
+    }
+    .value-cell {
+      color: #172554;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -91,84 +96,84 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- Khung mẫu PDF (ẩn khỏi màn hình chính) -->
+  <!-- Khung mẫu PDF (thiết kế tỷ lệ vàng hiển thị trọn vẹn trong 1 trang A4) -->
   <div style="position: absolute; left: -9999px; top: -9999px;">
-    <div id="ticketPdfTemplate" style="width: 760px; padding: 25px 35px; background: #ffffff; color: #000; font-family: 'Times New Roman', Times, serif; box-sizing: border-box;">
+    <div id="ticketPdfTemplate" style="width: 720px; padding: 20px 28px; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; box-sizing: border-box;">
       
       <!-- Logo Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px;">
         <div style="display: flex; align-items: center; gap: 15px;">
           <img src="TST.png" alt="TST Logo" style="height: 52px; object-fit: contain;" onerror="this.style.display='none'">
         </div>
         <div style="text-align: right;">
-          <h3 style="font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase;">Eye Level Math Olympiad</h3>
-          <p style="font-size: 11px; margin: 2px 0 0; color: #444;">Education at Your Doorstep</p>
+          <h3 style="font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase; color: #1e3a8a;">Eye Level Math Olympiad</h3>
+          <p style="font-size: 11px; margin: 2px 0 0; color: #475569;">Education at Your Doorstep</p>
         </div>
       </div>
 
-      <!-- Tiêu đề -->
-      <div style="text-align: center; margin-bottom: 15px;">
-        <h2 style="font-size: 21px; font-weight: bold; margin: 0; text-transform: uppercase; color: #1e3a8a;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
-        <p style="font-size: 14px; font-weight: bold; margin: 3px 0 0; text-transform: uppercase;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
+      <!-- Tiêu đề trên cùng màu đỏ -->
+      <div style="text-align: center; margin-bottom: 12px;">
+        <h2 style="font-size: 21px; font-weight: bold; margin: 0; text-transform: uppercase; color: #dc2626; letter-spacing: 0.5px;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
+        <p style="font-size: 13.5px; font-weight: bold; margin: 3px 0 0; text-transform: uppercase; color: #1e3a8a;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
       </div>
 
       <!-- Khung thông tin thí sinh và Mã QR -->
-      <table class="pdf-table" style="margin-bottom: 12px;">
+      <table class="pdf-table" style="margin-bottom: 10px;">
         <tr>
-          <td class="label-cell">Registration No.<br><span style="font-weight: normal; font-size: 12px;">(Số báo danh)</span></td>
-          <td style="font-size: 18px; font-weight: bold; color: #1e3a8a;" id="pdfRegNo">—</td>
-          <td rowspan="3" style="width: 140px; text-align: center; vertical-align: middle; padding: 8px;">
-            <div id="qrcodeContainer" style="display: flex; justify-content: center; align-items: center; margin-bottom: 4px;"></div>
-            <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #333;">MÃ QR ĐIỂM DANH</div>
+          <td class="label-cell">Registration No.<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Số báo danh)</span></td>
+          <td class="value-cell" style="font-size: 18px; font-weight: 800; color: #dc2626;" id="pdfRegNo">—</td>
+          <!-- Cột hiển thị Mã QR điểm danh (ghép 3 hàng) -->
+          <td rowspan="3" style="width: 135px; text-align: center; vertical-align: middle; padding: 4px; background: #fafafa;">
+            <div id="qrcodeContainer" style="display: flex; justify-content: center; align-items: center; margin-bottom: 2px;"></div>
+            <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: #1e3a8a;">MÃ QR ĐIỂM DANH</div>
           </td>
         </tr>
         <tr>
-          <td class="label-cell">Full Name<br><span style="font-weight: normal; font-size: 12px;">(Tên - Họ)</span></td>
-          <td style="font-size: 16px; font-weight: bold;" id="pdfFullName">—</td>
+          <td class="label-cell">Full Name<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Tên - Họ)</span></td>
+          <td class="value-cell" style="font-size: 16px; font-weight: bold;" id="pdfFullName">—</td>
         </tr>
         <tr>
-          <td class="label-cell">School Grade<br><span style="font-weight: normal; font-size: 12px;">(Trường - Phường, xã)</span></td>
-          <td id="pdfSchool">—</td>
+          <td class="label-cell">School Grade<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Trường - Phường, xã)</span></td>
+          <td class="value-cell" id="pdfSchool">—</td>
         </tr>
         <tr>
-          <td class="label-cell">Test Location<br><span style="font-weight: normal; font-size: 12px;">(Địa điểm thi)</span></td>
-          <td colspan="2" style="font-weight: bold;" id="pdfVenue">—</td>
+          <td class="label-cell">Test Location<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Địa điểm thi)</span></td>
+          <td colspan="2" class="value-cell" id="pdfVenue">—</td>
         </tr>
         <tr>
-          <td class="label-cell">ELMO No.<br><span style="font-weight: normal; font-size: 12px;">(Mã hồ sơ đăng ký)</span></td>
-          <td colspan="2" id="pdfProfileCode">—</td>
+          <td class="label-cell">ELMO No.<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Mã hồ sơ đăng ký)</span></td>
+          <td colspan="2" class="value-cell" id="pdfProfileCode">—</td>
         </tr>
         <tr>
-          <td class="label-cell">Test Date (dd/mm/yyyy)<br><span style="font-weight: normal; font-size: 12px;">(Ngày thi)</span></td>
-          <td colspan="2" id="pdfTestDate">14/11/2026 (thứ Bảy/Saturday)</td>
+          <td class="label-cell">Test Date (dd/mm/yyyy)<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Ngày thi)</span></td>
+          <td colspan="2" class="value-cell" id="pdfTestDate">14/11/2026 (thứ Bảy/Saturday)</td>
         </tr>
         <tr>
-          <td class="label-cell">Test Time<br><span style="font-weight: normal; font-size: 12px;">(Thời gian thi)</span></td>
-          <td colspan="2" style="font-weight: bold;" id="pdfTestTime">10:30 - 11:30</td>
+          <td class="label-cell">Test Time<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Thời gian thi)</span></td>
+          <td colspan="2" class="value-cell" style="font-size: 14.5px; font-weight: bold; color: #dc2626;" id="pdfTestTime">10:30 - 11:30</td>
         </tr>
       </table>
 
-      <!-- Thông báo dành cho thí sinh -->
-      <div style="border: 1px solid #000; padding: 10px 14px; margin-bottom: 12px; background-color: #fafafa;">
-        <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 6px; text-transform: uppercase;">
+      <!-- Thông báo dành cho thí sinh (NOTICE FOR EXAMINEES) -->
+      <div style="border: 1.5px solid #1e3a8a; padding: 8px 12px; margin-bottom: 10px; background-color: #f8fafc; border-radius: 4px;">
+        <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; color: #dc2626;">
           NOTICE FOR EXAMINEES (THÔNG BÁO DÀNH CHO NGƯỜI THI)
         </div>
-        <ul style="margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.45; list-style-type: disc;">
-          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi.</li>
-          <li>Thí sinh mặc đồng phục trường của mình khi đi thi.</li>
-          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi.</li>
-          <li>Cổng trường sẽ đóng trước giờ thi 15 phút.</li>
-          <li>Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi.</li>
-          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai.</li>
-          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc.</li>
-          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO].</li>
+        <ul style="margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.45; list-style-type: disc; color: #1e293b;">
+          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi[cite: 4].</li>
+          <li>Thí sinh mặc đồng phục trường của mình khi đi thi[cite: 4].</li>
+          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi[cite: 4].</li>
+          <li>Cổng trường sẽ đóng trước giờ thi 15 phút[cite: 4]. Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi[cite: 4].</li>
+          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai[cite: 4].</li>
+          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc[cite: 4].</li>
+          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO][cite: 4].</li>
         </ul>
       </div>
 
-      <!-- Ký tên BTC -->
-      <div style="text-align: right; margin-top: 10px; padding-right: 20px;">
-        <p style="font-size: 13.5px; font-weight: bold; margin: 0; text-transform: uppercase;">BAN TỔ CHỨC CUỘC THI</p>
-        <p style="font-size: 13px; font-weight: bold; margin: 3px 0 0; text-transform: uppercase; color: #1e3a8a;">OLYMPIC TOÁN HỌC ELMO 2026</p>
+      <!-- Chữ ký Ban Tổ Chức -->
+      <div style="text-align: right; padding-right: 15px;">
+        <p style="font-size: 12.5px; font-weight: bold; margin: 0; text-transform: uppercase; color: #334155;">BAN TỔ CHỨC CUỘC THI[cite: 4]</p>
+        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase; color: #1e3a8a;">OLYMPIC TOÁN HỌC ELMO 2026[cite: 4]</p>
       </div>
 
     </div>
@@ -200,7 +205,7 @@
       const s = String(status || '').toLowerCase();
       return s.includes('chưa hoàn tất lệ phí') || 
              s.includes('lệ phí') || 
-             s.includes('chưa đóng phí') || 
+             s.includes('chưa đóng phí') ||
              s.includes('chưa nộp phí');
     }
 
@@ -248,6 +253,7 @@
         Đang tạo PDF...
       `;
 
+      // Giá trị tạo QR: Ưu tiên Số báo danh (Registration No.)[cite: 4]
       const qrValue = item.regNo || item.profileCode || 'ELMO2026';
 
       document.getElementById('pdfRegNo').innerText = item.regNo || item.profileCode || '—';
@@ -263,13 +269,14 @@
       document.getElementById('pdfTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
       document.getElementById('pdfTestTime').innerText = item.testTime || '10:30 - 11:30';
 
+      // Sinh mã QR số báo danh
       const qrContainer = document.getElementById('qrcodeContainer');
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, {
         text: qrValue,
-        width: 105,
-        height: 105,
-        colorDark: "#000000",
+        width: 95,
+        height: 95,
+        colorDark: "#172554",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
@@ -278,10 +285,10 @@
 
       const element = document.getElementById('ticketPdfTemplate');
       const opt = {
-        margin: [8, 8, 8, 8],
+        margin: [5, 5, 5, 5],
         filename: `GiayBaoThi_${removeVietnameseTones(qrValue)}_${removeVietnameseTones(item.fullName)}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
@@ -296,7 +303,7 @@
     };
 
     form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Chặn tải lại trang
+      e.preventDefault();
       const phone = phoneInput.value.trim();
 
       results.innerHTML = '';
