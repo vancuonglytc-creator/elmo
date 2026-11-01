@@ -96,14 +96,14 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- Khung mẫu PDF (thiết kế tỷ lệ vàng hiển thị trọn vẹn trong 1 trang A4) -->
+  <!-- Khung mẫu PDF (chuẩn 1 trang A4) -->
   <div style="position: absolute; left: -9999px; top: -9999px;">
     <div id="ticketPdfTemplate" style="width: 720px; padding: 20px 28px; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; box-sizing: border-box;">
       
-      <!-- Logo Header -->
+      <!-- Logo Header: Cụm 3 logo góc trái & Logo Eye Level góc phải -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <img src="TST.png" alt="TST Logo" style="height: 52px; object-fit: contain;" onerror="this.style.display='none'">
+        <div style="flex-shrink: 0;">
+          <img src="logo_header_left.png" alt="Logo BTC" style="height: 52px; max-width: 320px; object-fit: contain;" onerror="this.src='TST.png'">
         </div>
         <div style="text-align: right;">
           <h3 style="font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase; color: #1e3a8a;">Eye Level Math Olympiad</h3>
@@ -154,7 +154,7 @@
         </tr>
       </table>
 
-      <!-- Thông báo dành cho thí sinh (NOTICE FOR EXAMINEES) -->
+      <!-- Thông báo dành cho thí sinh -->
       <div style="border: 1.5px solid #1e3a8a; padding: 8px 12px; margin-bottom: 10px; background-color: #f8fafc; border-radius: 4px;">
         <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; color: #dc2626;">
           NOTICE FOR EXAMINEES (THÔNG BÁO DÀNH CHO NGƯỜI THI)
@@ -253,7 +253,6 @@
         Đang tạo PDF...
       `;
 
-      // Giá trị tạo QR: Ưu tiên Số báo danh (Registration No.)[cite: 4]
       const qrValue = item.regNo || item.profileCode || 'ELMO2026';
 
       document.getElementById('pdfRegNo').innerText = item.regNo || item.profileCode || '—';
@@ -269,7 +268,6 @@
       document.getElementById('pdfTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
       document.getElementById('pdfTestTime').innerText = item.testTime || '10:30 - 11:30';
 
-      // Sinh mã QR số báo danh
       const qrContainer = document.getElementById('qrcodeContainer');
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, {
