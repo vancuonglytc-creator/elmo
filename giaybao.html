@@ -1,0 +1,108 @@
+function doGet(e) {
+  try {
+    var phone = (e && e.parameter && e.parameter.phone) ? String(e.parameter.phone).trim() : '';
+    if (!phone) {
+      return createJsonResponse({ success: false, message: 'Vui lòng nhập số điện thoại.' });
+    }
+
+    phone = phone.replace(/[^0-9]/g, '');
+
+    var cache = CacheService.getScriptCache();
+    var cachedData = cache.get("SHEET_DATA");
+    var data;
+
+    if (cachedData) {
+      data = JSON.parse(cachedData);
+    } else {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      data = sheet.getDataRange().getValues();
+      try {
+        cache.put("SHEET_DATA", JSON.stringify(data), 600);
+      } catch (errCache) {}
+    }
+
+    if (!data || data.length < 2) {
+      return createJsonResponse({ success: false, message: 'Bảng tính chưa có dữ liệu.' });
+    }
+
+    var headers = data[0].map(function(h) { return String(h).trim().toLowerCase(); });
+
+    function findCol(keywords) {
+      for (var i = 0; i < headers.length; i++) {
+        for (var k = 0; k < keywords.length; k++) {
+          if (headers[i].indexOf(keywords[k].toLowerCase()) !== -1) return i;
+        }
+      }
+      return -1;
+    }
+
+    var colPhone    = findCol(["Số điện thoại", "contact number"]);
+    var colRegNo    = findCol(["Số báo danh", "registration no", "sbd"]); // Cột Số báo danh
+    var colProfile  = findCol(["Mã hồ sơ", "elmo no"]);
+    var colName     = findCol(["Họ và tên thí sinh", "full name"]);
+    var colDay      = findCol(["Ngày sinh"]);
+    var colMonth    = findCol(["Tháng sinh"]);
+    var colYear     = findCol(["Năm sinh"]);
+    var colSchool   = findCol(["Tên trường", "school name"]);
+    var colLocation = findCol(["thuộc phường", "phường, xã", "location of school"]);
+    var colGroup    = findCol(["Bảng", "group"]);
+    var colVenue    = findCol(["Địa điểm thi", "test location", "venue"]);
+    var colTime     = findCol(["Thời gian thi", "test time", "giờ thi"]);
+    var colDate     = findCol(["Ngày thi", "test date"]);
+    var colParent   = findCol(["Họ và tên bố hoặc mẹ", "parent's full name"]);
+    var colStatus   = findCol(["Tình trạng đăng ký"]);
+
+    if (colPhone === -1) {
+      return createJsonResponse({ success: false, message: 'Lỗi: Không tìm thấy cột số điện thoại liên hệ.' });
+    }
+
+    var results = [];
+    for (var i = 1; i < data.length; i++) {
+      var rawCell = data[i][colPhone];
+      if (!rawCell) continue;
+      
+      var rowPhone = String(rawCell).replace(/[^0-9]/g, '');
+      if (rowPhone === phone) {
+        var rawDay   = colDay !== -1 ? String(data[i][colDay] || '').trim() : '';
+        var rawMonth = colMonth !== -1 ? String(data[i][colMonth] || '').trim() : '';
+        var rawYear  = colYear !== -1 ? String(data[i][colYear] || '').trim() : '';
+        var formattedDob = '—';
+        if (rawDay || rawMonth || rawYear) {
+          var d = rawDay ? ('0' + rawDay.replace(/[^0-9]/g, '')).slice(-2) : '??';
+          var m = rawMonth ? ('0' + rawMonth.replace(/[^0-9]/g, '')).slice(-2) : '??';
+          var y = rawYear ? rawYear.replace(/[^0-9]/g, '') : '????';
+          formattedDob = d + '/' + m + '/' + y;
+        }
+
+        results.push({
+          regNo: colRegNo !== -1 && data[i][colRegNo] ? String(data[i][colRegNo]).trim() : '', // SỐ BÁO DANH DÙNG TẠO QR
+          profileCode: colProfile !== -1 ? String(data[i][colProfile] || '—') : '—',
+          fullName: colName !== -1 ? String(data[i][colName] || '—') : '—',
+          dob: formattedDob,
+          schoolName: colSchool !== -1 ? String(data[i][colSchool] || '—') : '—',
+          schoolLocation: colLocation !== -1 ? String(data[i][colLocation] || '—') : '—',
+          group: colGroup !== -1 ? String(data[i][colGroup] || '—') : '—',
+          venue: colVenue !== -1 ? String(data[i][colVenue] || '—') : '—',
+          testDate: colDate !== -1 && data[i][colDate] ? String(data[i][colDate]) : '14/11/2026 (thứ Bảy/Saturday)',
+          testTime: colTime !== -1 && data[i][colTime] ? String(data[i][colTime]) : '10:30 - 11:30',
+          parentName: colParent !== -1 ? String(data[i][colParent] || '—') : '—',
+          status: colStatus !== -1 ? String(data[i][colStatus] || 'Chờ xử lý') : '—'
+        });
+      }
+    }
+
+    if (results.length > 0) {
+      return createJsonResponse({ success: true, data: results });
+    } else {
+      return createJsonResponse({ success: false, message: 'Không tìm thấy thông tin đăng ký với số điện thoại này.' });
+    }
+
+  } catch (err) {
+    return createJsonResponse({ success: false, message: 'Lỗi hệ thống: ' + err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
