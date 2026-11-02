@@ -5,59 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra Cứu Thông Tin Đăng Ký Cuộc Thi ELMO 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .pdf-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: 'Times New Roman', Times, serif;
-    }
-    .pdf-table td {
-      border: 1.5px solid #1e3a8a;
-      padding: 6px 10px;
-      vertical-align: middle;
-      font-size: 13px;
-      line-height: 1.35;
-    }
-    .label-cell {
-      background-color: #eff6ff;
-      font-weight: bold;
-      width: 32%;
-      color: #1e3a8a;
-    }
-    .value-cell {
-      color: #172554;
-      font-weight: 600;
-    }
-
-    /* Định dạng in ấn: Tự động kích hoạt khi bấm In/Lưu PDF */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      #ticketPrintArea, #ticketPrintArea * {
-        visibility: visible;
-      }
-      #ticketPrintArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        display: block !important;
-      }
-      .no-print {
-        display: none !important;
-      }
-      @page {
-        size: A4 portrait;
-        margin: 8mm;
-      }
-    }
-  </style>
 </head>
 <body class="bg-slate-50 min-h-screen py-10 px-4 text-slate-800">
-  <div class="max-w-xl mx-auto no-print">
+  <div class="max-w-xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-2xl font-bold text-blue-900 uppercase">TRA CỨU THÔNG TIN ĐĂNG KÝ DỰ THI ELMO 2026</h1>
@@ -118,93 +68,8 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- Vùng chứa khung Giấy báo thi -->
-  <div id="ticketPrintArea" class="hidden">
-    <div style="width: 720px; margin: 0 auto; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; padding: 20px 25px; box-sizing: border-box;">
-      
-      <!-- Logo Header -->
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px;">
-        <div style="flex-shrink: 0;">
-          <img src="logo_header_left.png" alt="Logo BTC" style="height: 50px; max-width: 320px; object-fit: contain;" onerror="this.src='TST.png'">
-        </div>
-        <div style="text-align: right;">
-          <h3 style="font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase; color: #1e3a8a;">Eye Level Math Olympiad</h3>
-          <p style="font-size: 11px; margin: 2px 0 0; color: #475569;">Education at Your Doorstep</p>
-        </div>
-      </div>
-
-      <!-- Tiêu đề trên cùng màu đỏ -->
-      <div style="text-align: center; margin-bottom: 12px;">
-        <h2 style="font-size: 21px; font-weight: bold; margin: 0; text-transform: uppercase; color: #dc2626;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
-        <p style="font-size: 13.5px; font-weight: bold; margin: 3px 0 0; text-transform: uppercase; color: #1e3a8a;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
-      </div>
-
-      <!-- Khung thông tin thí sinh và Mã QR -->
-      <table class="pdf-table" style="margin-bottom: 10px;">
-        <tr>
-          <td class="label-cell">Registration No.<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Số báo danh)</span></td>
-          <td class="value-cell" style="font-size: 18px; font-weight: 800; color: #dc2626;" id="pdfRegNo">—</td>
-          <!-- Cột hiển thị Mã QR điểm danh (ghép 3 hàng) -->
-          <td rowspan="3" style="width: 135px; text-align: center; vertical-align: middle; padding: 4px; background: #fafafa;">
-            <img id="qrcodeImg" src="" alt="Mã QR" style="width: 100px; height: 100px; margin: 0 auto; display: block;">
-            <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: #1e3a8a; margin-top: 2px;">MÃ QR ĐIỂM DANH</div>
-          </td>
-        </tr>
-        <tr>
-          <td class="label-cell">Full Name<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Tên - Họ)</span></td>
-          <td class="value-cell" style="font-size: 16px; font-weight: bold;" id="pdfFullName">—</td>
-        </tr>
-        <tr>
-          <td class="label-cell">School Grade<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Trường - Phường, xã)</span></td>
-          <td class="value-cell" id="pdfSchool">—</td>
-        </tr>
-        <tr>
-          <td class="label-cell">Test Location<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Địa điểm thi)</span></td>
-          <td colspan="2" class="value-cell" id="pdfVenue">—</td>
-        </tr>
-        <tr>
-          <td class="label-cell">ELMO No.<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Mã hồ sơ đăng ký)</span></td>
-          <td colspan="2" class="value-cell" id="pdfProfileCode">—</td>
-        </tr>
-        <tr>
-          <td class="label-cell">Test Date (dd/mm/yyyy)<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Ngày thi)</span></td>
-          <td colspan="2" class="value-cell" id="pdfTestDate">14/11/2026 (thứ Bảy/Saturday)</td>
-        </tr>
-        <tr>
-          <td class="label-cell">Test Time<br><span style="font-weight: normal; font-size: 11.5px; color: #475569;">(Thời gian thi)</span></td>
-          <td colspan="2" class="value-cell" style="font-size: 14.5px; font-weight: bold; color: #dc2626;" id="pdfTestTime">10:30 - 11:30</td>
-        </tr>
-      </table>
-
-      <!-- Thông báo dành cho thí sinh -->
-      <div style="border: 1.5px solid #1e3a8a; padding: 8px 12px; margin-bottom: 10px; background-color: #f8fafc; border-radius: 4px;">
-        <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; color: #dc2626;">
-          NOTICE FOR EXAMINEES (THÔNG BÁO DÀNH CHO NGƯỜI THI)
-        </div>
-        <ul style="margin: 0; padding-left: 16px; font-size: 11px; line-height: 1.45; list-style-type: disc; color: #1e293b;">
-          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi[cite: 4].</li>
-          <li>Thí sinh mặc đồng phục trường của mình khi đi thi[cite: 4].</li>
-          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi[cite: 4].</li>
-          <li>Cổng trường sẽ đóng trước giờ thi 15 phút[cite: 4]. Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi[cite: 4].</li>
-          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai[cite: 4].</li>
-          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc[cite: 4].</li>
-          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO][cite: 4].</li>
-        </ul>
-      </div>
-
-      <!-- Chữ ký Ban Tổ Chức -->
-      <div style="text-align: right; padding-right: 15px;">
-        <p style="font-size: 12.5px; font-weight: bold; margin: 0; text-transform: uppercase; color: #334155;">BAN TỔ CHỨC CUỘC THI[cite: 4]</p>
-        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase; color: #1e3a8a;">OLYMPIC TOÁN HỌC ELMO 2026[cite: 4]</p>
-      </div>
-
-    </div>
-  </div>
-
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcGIv7WOnsdezBj1aBqqjfkPqTiLCbBM1AUfNf3JhYGfuq2uiWeszeHnHZeN7pgg6RvQ/exec";
-
-    let fetchedData = [];
 
     const form = document.getElementById('searchForm');
     const phoneInput = document.getElementById('phone');
@@ -212,89 +77,50 @@
     const message = document.getElementById('message');
     const results = document.getElementById('results');
     const btnSearch = document.getElementById('btnSearch');
-    const ticketPrintArea = document.getElementById('ticketPrintArea');
-
-    function isInvalidStatus(status) {
-      const s = String(status || '').toLowerCase();
-      return s.includes('không hợp lệ') || 
-             s.includes('trùng dữ liệu') || 
-             s.includes('hủy') || 
-             s.includes('loại') || 
-             s.includes('từ chối') || 
-             s.includes('chưa đạt');
-    }
-
-    function isUnpaidStatus(status) {
-      const s = String(status || '').toLowerCase();
-      return s.includes('chưa hoàn tất lệ phí') || 
-             s.includes('lệ phí') || 
-             s.includes('chưa đóng phí') || 
-             s.includes('chưa nộp phí');
-    }
-
-    function isEligibleToDownload(status) {
-      const s = String(status || '').toLowerCase();
-      if (isInvalidStatus(status) || isUnpaidStatus(status) || s.includes('chờ')) return false;
-      return s.includes('hợp lệ') || s.includes('thành công') || s.includes('đã duyệt') || s.includes('hoàn tất') || s.includes('đã xác nhận');
-    }
 
     function getStatusBadgeClass(status) {
       const s = String(status || '').toLowerCase().trim();
-      if (isInvalidStatus(status)) {
+
+      // 1. Tô ĐỎ: Đăng ký không hợp lệ, trùng dữ liệu
+      if (
+        s.includes('không hợp lệ') || 
+        s.includes('trùng dữ liệu') || 
+        s.includes('hủy') || 
+        s.includes('bị loại') || 
+        s.includes('từ chối') ||
+        s.includes('chưa đạt')
+      ) {
         return 'bg-rose-50 text-rose-700 border-rose-300 font-bold';
       }
-      if (isUnpaidStatus(status)) {
+
+      // 2. Tô CAM: Chưa hoàn tất lệ phí dự thi
+      if (
+        s.includes('chưa hoàn tất lệ phí') || 
+        s.includes('lệ phí') || 
+        s.includes('chưa đóng phí') ||
+        s.includes('chưa nộp phí')
+      ) {
         return 'bg-orange-50 text-orange-700 border-orange-300 font-bold';
       }
+
+      // 3. Tô VÀNG: Trạng thái chờ xử lý chung
       if (s.includes('chờ') || s.includes('đang')) {
         return 'bg-amber-50 text-amber-700 border-amber-300 font-medium';
       }
-      if (s.includes('hợp lệ') || s.includes('thành công') || s.includes('đã duyệt') || s.includes('hoàn tất') || s.includes('đã xác nhận')) {
+
+      // 4. Tô XANH LÁ: Hợp lệ / Đã duyệt / Đã xác nhận
+      if (
+        s.includes('hợp lệ') || 
+        s.includes('thành công') || 
+        s.includes('đã duyệt') || 
+        s.includes('hoàn tất') || 
+        s.includes('đã xác nhận')
+      ) {
         return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold';
       }
+
       return 'bg-blue-50 text-blue-700 border-blue-200';
     }
-
-    // In trực tiếp ra PDF chuẩn A4 trong 0.5s
-    window.printPdfDirect = function(index) {
-      const item = fetchedData[index];
-      if (!item) return;
-
-      const qrValue = item.regNo || item.profileCode || 'ELMO2026';
-      document.getElementById('pdfRegNo').innerText = item.regNo || item.profileCode || '—';
-      document.getElementById('pdfFullName').innerText = item.fullName || '—';
-      
-      let schoolInfo = item.schoolName || '—';
-      if (item.schoolLocation && item.schoolLocation !== '—') {
-        schoolInfo += ', ' + item.schoolLocation;
-      }
-      document.getElementById('pdfSchool').innerText = schoolInfo;
-      document.getElementById('pdfVenue').innerText = item.venue || '—';
-      document.getElementById('pdfProfileCode').innerText = item.profileCode || '—';
-      document.getElementById('pdfTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
-      document.getElementById('pdfTestTime').innerText = item.testTime || '10:30 - 11:30';
-
-      // Tạo QR bằng ảnh trực tiếp cực nhanh
-      const qrImg = document.getElementById('qrcodeImg');
-      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrValue)}`;
-
-      ticketPrintArea.classList.remove('hidden');
-
-      // Đợi ảnh QR nạp xong rồi mở ngay cửa sổ In/Lưu PDF
-      if (qrImg.complete) {
-        window.print();
-        ticketPrintArea.classList.add('hidden');
-      } else {
-        qrImg.onload = function() {
-          window.print();
-          ticketPrintArea.classList.add('hidden');
-        };
-        qrImg.onerror = function() {
-          window.print();
-          ticketPrintArea.classList.add('hidden');
-        };
-      }
-    };
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -313,96 +139,80 @@
         btnSearch.disabled = false;
 
         if (res.success && res.data && res.data.length > 0) {
-          fetchedData = res.data;
-
-          res.data.forEach((item, index) => {
+          res.data.forEach((item) => {
             const card = document.createElement('div');
             card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
             
             const badgeClass = getStatusBadgeClass(item.status);
-            const canDownload = isEligibleToDownload(item.status);
-            const isInvalid = isInvalidStatus(item.status);
-            const isUnpaid = isUnpaidStatus(item.status);
-
-            let actionHtml = '';
-            if (canDownload) {
-              actionHtml = `
-                <div class="pt-3 border-t flex justify-end">
-                  <button 
-                    type="button" 
-                    onclick="printPdfDirect(${index})" 
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    In Giấy Báo Thi / Lưu PDF
-                  </button>
-                </div>
-              `;
-            } else if (isUnpaid) {
-              actionHtml = `
-                <div class="pt-2 border-t text-right">
-                  <span class="text-xs text-orange-600 italic font-medium">Hồ sơ chưa hoàn tất lệ phí. Vui lòng hoàn tất để tải giấy báo thi.</span>
-                </div>
-              `;
-            } else if (isInvalid) {
-              actionHtml = `
-                <div class="pt-2 border-t text-right">
-                  <span class="text-xs text-rose-500 italic font-medium">Không thể xuất giấy báo thi cho hồ sơ không hợp lệ.</span>
-                </div>
-              `;
-            } else {
-              actionHtml = `
-                <div class="pt-2 border-t text-right">
-                  <span class="text-xs text-amber-600 italic font-medium">Hồ sơ đang chờ xác nhận từ Ban Tổ chức.</span>
-                </div>
-              `;
-            }
 
             card.innerHTML = `
+              <!-- Phần đầu: SBD nổi bật to đỏ và Trạng thái -->
               <div class="flex items-center justify-between border-b pb-3">
                 <div>
-                  <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold block">Số báo danh / Mã hồ sơ</span>
-                  <span class="text-base font-bold text-blue-700 tracking-wide">${item.regNo || item.profileCode || '—'}</span>
+                  <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Số báo danh</span>
+                  <span class="text-2xl font-black text-red-600 tracking-wider">${item.regNo || '—'}</span>
                 </div>
                 <span class="border px-3 py-1 rounded-full text-xs ${badgeClass}">
                   ${item.status || '—'}
                 </span>
               </div>
 
+              <!-- Lưới hiển thị chi tiết các trường dữ liệu -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <!-- Mã hồ sơ -->
+                <div>
+                  <span class="text-slate-400 text-xs block">Mã hồ sơ</span>
+                  <p class="font-bold text-base text-blue-800">${item.profileCode || '—'}</p>
+                </div>
+
+                <!-- Họ và tên thí sinh -->
                 <div>
                   <span class="text-slate-400 text-xs block">Họ và tên thí sinh</span>
-                  <p class="font-bold text-lg text-slate-900">${item.fullName || '—'}</p>
+                  <p class="font-bold text-base text-slate-900">${item.fullName || '—'}</p>
                 </div>
+
+                <!-- Ngày/Tháng/Năm sinh -->
                 <div>
-                  <span class="text-slate-400 text-xs block">Ngày tháng năm sinh</span>
-                  <p class="font-bold text-base text-blue-900">${item.dob || '—'}</p>
+                  <span class="text-slate-400 text-xs block">Ngày/Tháng/Năm sinh</span>
+                  <p class="font-semibold text-slate-800">${item.dob || '—'}</p>
                 </div>
+
+                <!-- Bảng đăng ký dự thi -->
                 <div>
                   <span class="text-slate-400 text-xs block">Bảng đăng ký dự thi</span>
-                  <p class="font-medium text-slate-800">${item.group || '—'}</p>
+                  <p class="font-semibold text-slate-800">${item.group || '—'}</p>
                 </div>
-                <div>
-                  <span class="text-slate-400 text-xs block">Họ và tên bố hoặc mẹ</span>
-                  <p class="font-medium text-slate-800">${item.parentName || '—'}</p>
-                </div>
+
+                <!-- Tên trường của thí sinh -->
                 <div class="sm:col-span-2">
-                  <span class="text-slate-400 text-xs block">Tên trường</span>
+                  <span class="text-slate-400 text-xs block">Tên trường của thí sinh</span>
                   <p class="font-medium text-slate-800">${item.schoolName || '—'}</p>
                 </div>
+
+                <!-- Phường, xã, đặc khu nơi trường thí sinh theo học -->
                 <div class="sm:col-span-2">
-                  <span class="text-slate-400 text-xs block">Địa chỉ trường (Phường, xã, đặc khu)</span>
+                  <span class="text-slate-400 text-xs block">Phường, xã, đặc khu nơi trường thí sinh theo học</span>
                   <p class="font-medium text-slate-800">${item.schoolLocation || '—'}</p>
                 </div>
+
+                <!-- Địa điểm thi -->
                 <div class="sm:col-span-2">
                   <span class="text-slate-400 text-xs block">Địa điểm thi</span>
                   <p class="font-semibold text-slate-800">${item.venue || '—'}</p>
                 </div>
-              </div>
 
-              ${actionHtml}
+                <!-- Thời gian thi -->
+                <div>
+                  <span class="text-slate-400 text-xs block">Thời gian thi</span>
+                  <p class="font-semibold text-blue-900">${item.testTime || '—'}</p>
+                </div>
+
+                <!-- Ngày thi -->
+                <div>
+                  <span class="text-slate-400 text-xs block">Ngày thi</span>
+                  <p class="font-semibold text-blue-900">${item.testDate || '—'}</p>
+                </div>
+              </div>
             `;
             results.appendChild(card);
           });
