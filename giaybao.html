@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra Cứu Thông Tin Đăng Ký Cuộc Thi ELMO 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Thư viện tạo mã QR trực tiếp trên canvas (nhẹ, nhanh, không phụ thuộc API ngoài) -->
+  <!-- Thư viện tạo mã QR trực tiếp trên canvas nội bộ -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-  <!-- Thư viện chụp màn hình & xuất PDF chuyên dụng -->
+  <!-- Thư viện tạo ảnh & PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
-    /* Định dạng bảng giấy báo thi chuẩn Word: Font Arial, chữ đen */
     .ticket-box {
       font-family: Arial, Helvetica, sans-serif;
       color: #000000;
@@ -48,7 +47,7 @@
       color: #000000;
     }
 
-    /* Vùng kết xuất PDF: hiển thị ở tầng đáy ngoài màn hình để không che giao diện web */
+    /* Vùng render ẩn */
     #renderPdfWrapper {
       position: fixed;
       left: 0;
@@ -57,10 +56,36 @@
       opacity: 0;
       pointer-events: none;
     }
+
+    /* Hỗ trợ in chuẩn khi mở hộp thoại in của điện thoại */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #renderPdfWrapper, #admissionTicketTemplate, #admissionTicketTemplate * {
+        visibility: visible;
+      }
+      #renderPdfWrapper {
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 99999;
+        opacity: 1;
+        width: 100%;
+        display: block !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen py-10 px-4 text-slate-800">
-  <div class="max-w-xl mx-auto">
+  <div class="max-w-xl mx-auto no-print">
     <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-2xl font-bold text-blue-900 uppercase">TRA CỨU THÔNG TIN ĐĂNG KÝ DỰ THI ELMO 2026</h1>
@@ -121,21 +146,21 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- KHUNG MẪU GIẤY BÁO THI A4 (Chữ đen, in đậm tiêu đề, font Arial theo mẫu file Word) -->
+  <!-- KHUNG MẪU GIẤY BÁO THI A4 (Chữ đen, in đậm tiêu đề, font Arial theo mẫu file Word)[cite: 12] -->
   <div id="renderPdfWrapper">
     <div id="admissionTicketTemplate" class="ticket-box">
-      <!-- Dòng tiêu đề trên cùng -->
+      <!-- Dòng tiêu đề trên cùng[cite: 12] -->
       <div style="text-align: center; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #000; padding-bottom: 6px;">
         CUỘC THI OLYMPIC TOÁN HỌC ELMO NĂM 2026
       </div>
 
-      <!-- Tiêu đề chính -->
+      <!-- Tiêu đề chính[cite: 12] -->
       <div style="text-align: center; margin-bottom: 14px;">
         <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
         <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
       </div>
 
-      <!-- Bảng thông tin thí sinh & Mã QR số báo danh -->
+      <!-- Bảng thông tin thí sinh & Mã QR số báo danh[cite: 12] -->
       <table class="ticket-table">
         <tr>
           <td class="label-col">
@@ -143,7 +168,7 @@
             <span style="font-weight: normal; font-size: 11.5px;">(Số báo danh)</span>
           </td>
           <td class="value-col" style="font-size: 17px; font-weight: bold;" id="tRegNo">—</td>
-          <!-- Cột mã QR Số báo danh (ghép 3 hàng) -->
+          <!-- Cột mã QR Số báo danh (ghép 3 hàng)[cite: 12] -->
           <td rowspan="3" style="width: 145px; text-align: center; vertical-align: middle; padding: 6px; background: #ffffff;">
             <canvas id="qrCodeCanvas" style="width: 110px; height: 110px; margin: 0 auto; display: block;"></canvas>
             <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; margin-top: 3px;">MÃ QR SỐ BÁO DANH</div>
@@ -193,27 +218,27 @@
         </tr>
       </table>
 
-      <!-- Khung thông báo dành cho người thi -->
+      <!-- Khung thông báo dành cho người thi[cite: 12] -->
       <div style="border: 1px solid #000000; padding: 10px 14px; margin-bottom: 12px; background: #ffffff;">
         <div style="text-align: center; font-weight: bold; font-size: 12.5px; text-transform: uppercase; margin-bottom: 6px;">
           NOTICE FOR EXAMINEES (THÔNG BÁO DÀNH CHO NGƯỜI THI)
         </div>
         <ul style="margin: 0; padding-left: 18px; font-size: 11.5px; line-height: 1.45; list-style-type: disc;">
-          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi.</li>
-          <li>Thí sinh mặc đồng phục trường của mình khi đi thi.</li>
-          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi.</li>
-          <li>Cổng trường sẽ đóng trước giờ thi 15 phút.</li>
-          <li>Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi.</li>
-          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai.</li>
-          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc.</li>
-          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO].</li>
+          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi[cite: 12].</li>
+          <li>Thí sinh mặc đồng phục trường của mình khi đi thi[cite: 12].</li>
+          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi[cite: 12].</li>
+          <li>Cổng trường sẽ đóng trước giờ thi 15 phút[cite: 12].</li>
+          <li>Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi[cite: 12].</li>
+          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai[cite: 12].</li>
+          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc[cite: 12].</li>
+          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO][cite: 12].</li>
         </ul>
       </div>
 
-      <!-- Ký tên Ban Tổ Chức -->
+      <!-- Ký tên Ban Tổ Chức[cite: 12] -->
       <div style="text-align: right; margin-top: 10px; padding-right: 15px;">
-        <p style="font-size: 12.5px; font-weight: bold; margin: 0; text-transform: uppercase;">BAN TỔ CHỨC CUỘC THI</p>
-        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase;">OLYMPIC TOÁN HỌC ELMO 2026</p>
+        <p style="font-size: 12.5px; font-weight: bold; margin: 0; text-transform: uppercase;">BAN TỔ CHỨC CUỘC THI[cite: 12]</p>
+        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase;">OLYMPIC TOÁN HỌC ELMO 2026[cite: 12]</p>
       </div>
     </div>
   </div>
@@ -277,50 +302,47 @@
         .trim();
     }
 
-    // Hàm tạo & tải Giấy báo thi dạng file PDF (tên file là số báo danh)
+    // Hàm điền dữ liệu & dựng mã QR đồng bộ
+    async function prepareTicket(item) {
+      const sbd = item.regNo && item.regNo !== '—' ? item.regNo.trim() : (item.profileCode || 'GIAY_BAO_THI');
+
+      document.getElementById('tRegNo').innerText = item.regNo || '—';
+      document.getElementById('tFullName').innerText = item.fullName || '—';
+
+      let schoolStr = item.schoolName || '—';
+      if (item.schoolLocation && item.schoolLocation !== '—') {
+        schoolStr += ', ' + item.schoolLocation;
+      }
+      document.getElementById('tSchool').innerText = schoolStr;
+      document.getElementById('tVenue').innerText = item.venue || '—';
+      document.getElementById('tProfileCode').innerText = item.profileCode || '—';
+      document.getElementById('tTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
+      document.getElementById('tTestTime').innerText = item.testTime || '10:30 - 11:30';
+
+      const qrCanvas = document.getElementById('qrCodeCanvas');
+      new QRious({
+        element: qrCanvas,
+        value: sbd,
+        size: 180,
+        level: 'H'
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 80));
+      return sbd;
+    }
+
+    // 1. TẢI FILE PDF (Hỗ trợ trình duyệt điện thoại và Blob URL)
     window.downloadTicketPdf = async function(index, btnElement) {
       const item = fetchedData[index];
       if (!item) return;
 
       const originalText = btnElement.innerHTML;
       btnElement.disabled = true;
-      btnElement.innerHTML = `
-        <svg class="animate-spin h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-        </svg>
-        Đang tạo file PDF...
-      `;
+      btnElement.innerHTML = `Đang xử lý PDF...`;
 
       try {
-        const sbd = item.regNo && item.regNo !== '—' ? item.regNo.trim() : (item.profileCode || 'GIAY_BAO_THI');
+        const sbd = await prepareTicket(item);
 
-        // 1. Điền dữ liệu vào khung in
-        document.getElementById('tRegNo').innerText = item.regNo || '—';
-        document.getElementById('tFullName').innerText = item.fullName || '—';
-
-        let schoolStr = item.schoolName || '—';
-        if (item.schoolLocation && item.schoolLocation !== '—') {
-          schoolStr += ', ' + item.schoolLocation;
-        }
-        document.getElementById('tSchool').innerText = schoolStr;
-        document.getElementById('tVenue').innerText = item.venue || '—';
-        document.getElementById('tProfileCode').innerText = item.profileCode || '—';
-        document.getElementById('tTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
-        document.getElementById('tTestTime').innerText = item.testTime || '10:30 - 11:30';
-
-        // 2. Tạo mã QR trực tiếp trên Canvas theo đúng Số Báo Danh
-        const qrCanvas = document.getElementById('qrCodeCanvas');
-        new QRious({
-          element: qrCanvas,
-          value: sbd,
-          size: 180,
-          level: 'H'
-        });
-
-        await new Promise(resolve => setTimeout(resolve, 80));
-
-        // 3. Chụp khung giấy báo & xuất file PDF
         const targetElement = document.getElementById('admissionTicketTemplate');
         const canvas = await html2canvas(targetElement, {
           scale: 2,
@@ -339,12 +361,63 @@
 
         pdf.addImage(imgData, 'PNG', margin, margin, printWidth, printHeight);
 
-        // 4. Lưu tên file chính xác là Số Báo Danh (ví dụ S1543857.pdf)
-        pdf.save(`${cleanFilename(sbd)}.pdf`);
+        const fileName = `${cleanFilename(sbd)}.pdf`;
+
+        // Cơ chế kích hoạt tải file đa nền tảng
+        const blob = pdf.output('blob');
+        const blobUrl = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Giải phóng URL bộ nhớ
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
 
       } catch (err) {
         console.error(err);
-        alert('Có lỗi xảy ra khi tạo file PDF, vui lòng thử lại!');
+        // Phương án dự phòng trên iPhone nếu chặn Blob: Mở bảng in hệ thống để lưu PDF
+        window.print();
+      } finally {
+        btnElement.disabled = false;
+        btnElement.innerHTML = originalText;
+      }
+    };
+
+    // 2. TẢI ẢNH PNG (Lưu thẳng vào thư viện ảnh trên điện thoại)
+    window.downloadTicketImage = async function(index, btnElement) {
+      const item = fetchedData[index];
+      if (!item) return;
+
+      const originalText = btnElement.innerHTML;
+      btnElement.disabled = true;
+      btnElement.innerHTML = `Đang lưu ảnh...`;
+
+      try {
+        const sbd = await prepareTicket(item);
+
+        const targetElement = document.getElementById('admissionTicketTemplate');
+        const canvas = await html2canvas(targetElement, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const link = document.createElement('a');
+        link.download = `${cleanFilename(sbd)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+      } catch (err) {
+        console.error(err);
+        alert('Không thể lưu ảnh, quý phụ huynh vui lòng thử lại!');
       } finally {
         btnElement.disabled = false;
         btnElement.innerHTML = originalText;
@@ -382,16 +455,29 @@
             let actionHtml = '';
             if (canDownload) {
               actionHtml = `
-                <div class="pt-3 border-t flex justify-end">
+                <div class="pt-3 border-t flex flex-wrap justify-end gap-2">
+                  <!-- Nút tải ảnh PNG -->
+                  <button 
+                    type="button" 
+                    onclick="downloadTicketImage(${index}, this)" 
+                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold rounded-xl transition duration-150"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Tải ảnh (.PNG)
+                  </button>
+
+                  <!-- Nút tải PDF -->
                   <button 
                     type="button" 
                     onclick="downloadTicketPdf(${index}, this)" 
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Tải Giấy báo thi (PDF)
+                    Tải Giấy báo (PDF)
                   </button>
                 </div>
               `;
@@ -416,7 +502,7 @@
             }
 
             card.innerHTML = `
-              <!-- Phần đầu: SBD nổi bật to đỏ và Trạng thái -->
+              <!-- SBD nổi bật to đỏ và Trạng thái -->
               <div class="flex items-center justify-between border-b pb-3">
                 <div>
                   <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Số báo danh</span>
