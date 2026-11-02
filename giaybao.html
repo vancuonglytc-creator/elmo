@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra Cứu Thông Tin Đăng Ký Cuộc Thi ELMO 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Thư viện tạo mã QR -->
+  <!-- Thư viện tạo mã QR & canvas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- Thư viện xuất HTML sang file PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+    /* Bảng biểu cho mẫu giấy báo thi */
     .pdf-table {
       width: 100%;
       border-collapse: collapse;
@@ -17,10 +17,10 @@
     }
     .pdf-table td {
       border: 1.5px solid #1e3a8a;
-      padding: 5px 10px;
+      padding: 6px 10px;
       vertical-align: middle;
       font-size: 13px;
-      line-height: 1.3;
+      line-height: 1.35;
     }
     .label-cell {
       background-color: #eff6ff;
@@ -32,10 +32,36 @@
       color: #172554;
       font-weight: 600;
     }
+
+    /* Định dạng in ấn: Khi bấm In/Lưu PDF sẽ chỉ hiện khung giấy báo thi khổ A4 chuẩn */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #ticketPrintArea, #ticketPrintArea * {
+        visibility: visible;
+      }
+      #ticketPrintArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        display: block !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen py-10 px-4 text-slate-800">
-  <div class="max-w-xl mx-auto">
+  <div class="max-w-xl mx-auto no-print">
     <!-- Header -->
     <div class="text-center mb-8">
       <h1 class="text-2xl font-bold text-blue-900 uppercase">TRA CỨU THÔNG TIN ĐĂNG KÝ DỰ THI ELMO 2026</h1>
@@ -96,14 +122,14 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- Khung mẫu PDF (chuẩn 1 trang A4) -->
-  <div style="position: absolute; left: -9999px; top: -9999px;">
-    <div id="ticketPdfTemplate" style="width: 720px; padding: 20px 28px; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; box-sizing: border-box;">
+  <!-- Vùng chứa khung Giấy báo thi (ẩn trên web, xuất hiện khi in hoặc chụp ảnh) -->
+  <div id="ticketPrintArea" class="hidden">
+    <div id="ticketCardBox" style="width: 720px; margin: 0 auto; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; padding: 20px 25px; box-sizing: border-box;">
       
-      <!-- Logo Header: Cụm 3 logo góc trái & Logo Eye Level góc phải -->
+      <!-- Logo Header -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px;">
         <div style="flex-shrink: 0;">
-          <img src="logo_header_left.png" alt="Logo BTC" style="height: 52px; max-width: 320px; object-fit: contain;" onerror="this.src='TST.png'">
+          <img src="logo_header_left.png" alt="Logo BTC" style="height: 50px; max-width: 320px; object-fit: contain;" onerror="this.src='TST.png'">
         </div>
         <div style="text-align: right;">
           <h3 style="font-size: 16px; font-weight: bold; margin: 0; text-transform: uppercase; color: #1e3a8a;">Eye Level Math Olympiad</h3>
@@ -113,7 +139,7 @@
 
       <!-- Tiêu đề trên cùng màu đỏ -->
       <div style="text-align: center; margin-bottom: 12px;">
-        <h2 style="font-size: 21px; font-weight: bold; margin: 0; text-transform: uppercase; color: #dc2626; letter-spacing: 0.5px;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
+        <h2 style="font-size: 21px; font-weight: bold; margin: 0; text-transform: uppercase; color: #dc2626;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
         <p style="font-size: 13.5px; font-weight: bold; margin: 3px 0 0; text-transform: uppercase; color: #1e3a8a;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
       </div>
 
@@ -190,6 +216,7 @@
     const message = document.getElementById('message');
     const results = document.getElementById('results');
     const btnSearch = document.getElementById('btnSearch');
+    const ticketPrintArea = document.getElementById('ticketPrintArea');
 
     function isInvalidStatus(status) {
       const s = String(status || '').toLowerCase();
@@ -205,7 +232,7 @@
       const s = String(status || '').toLowerCase();
       return s.includes('chưa hoàn tất lệ phí') || 
              s.includes('lệ phí') || 
-             s.includes('chưa đóng phí') ||
+             s.includes('chưa đóng phí') || 
              s.includes('chưa nộp phí');
     }
 
@@ -239,22 +266,9 @@
         .replace(/[^a-zA-Z0-9]/g, '_');
     }
 
-    window.downloadPdfTicket = async function(index, btnElement) {
-      const item = fetchedData[index];
-      if (!item) return;
-
-      const originalBtnText = btnElement.innerHTML;
-      btnElement.disabled = true;
-      btnElement.innerHTML = `
-        <svg class="animate-spin h-4 w-4 text-blue-700 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-        </svg>
-        Đang tạo PDF...
-      `;
-
+    // Hàm điền dữ liệu vào mẫu giấy báo & vẽ mã QR
+    async function populateTicket(item) {
       const qrValue = item.regNo || item.profileCode || 'ELMO2026';
-
       document.getElementById('pdfRegNo').innerText = item.regNo || item.profileCode || '—';
       document.getElementById('pdfFullName').innerText = item.fullName || '—';
       
@@ -276,24 +290,54 @@
         height: 95,
         colorDark: "#172554",
         colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+        correctLevel: QRCode.CorrectLevel.M
       });
 
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 150));
+      return qrValue;
+    }
 
-      const element = document.getElementById('ticketPdfTemplate');
-      const opt = {
-        margin: [5, 5, 5, 5],
-        filename: `GiayBaoThi_${removeVietnameseTones(qrValue)}_${removeVietnameseTones(item.fullName)}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+    // 1. In trực tiếp / Lưu PDF chuẩn A4 (Không bao giờ bị treo)
+    window.printPdfDirect = async function(index) {
+      const item = fetchedData[index];
+      if (!item) return;
+
+      await populateTicket(item);
+
+      ticketPrintArea.classList.remove('hidden');
+      window.print();
+      ticketPrintArea.classList.add('hidden');
+    };
+
+    // 2. Tải file ảnh PNG về máy (tùy chọn phụ lưu vào album ảnh điện thoại)
+    window.downloadImageDirect = async function(index, btnElement) {
+      const item = fetchedData[index];
+      if (!item) return;
+
+      const originalBtnText = btnElement.innerHTML;
+      btnElement.disabled = true;
+      btnElement.innerHTML = `Đang tải...`;
 
       try {
-        await html2pdf().set(opt).from(element).save();
+        const qrValue = await populateTicket(item);
+        ticketPrintArea.classList.remove('hidden');
+
+        const box = document.getElementById('ticketCardBox');
+        const canvas = await html2canvas(box, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        ticketPrintArea.classList.add('hidden');
+
+        const link = document.createElement('a');
+        link.download = `GiayBaoThi_${removeVietnameseTones(qrValue)}_${removeVietnameseTones(item.fullName)}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
       } catch (err) {
-        alert('Có lỗi khi tạo file PDF, quý phụ huynh vui lòng thử lại!');
+        ticketPrintArea.classList.add('hidden');
+        alert('Vui lòng sử dụng nút "Lưu PDF / In thẻ"!');
       } finally {
         btnElement.disabled = false;
         btnElement.innerHTML = originalBtnText;
@@ -331,16 +375,23 @@
             let actionHtml = '';
             if (canDownload) {
               actionHtml = `
-                <div class="pt-2 border-t flex justify-end">
+                <div class="pt-3 border-t flex flex-wrap justify-end gap-2">
                   <button 
                     type="button" 
-                    onclick="downloadPdfTicket(${index}, this)" 
+                    onclick="downloadImageDirect(${index}, this)" 
+                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition duration-150"
+                  >
+                    Tải file ảnh (.PNG)
+                  </button>
+                  <button 
+                    type="button" 
+                    onclick="printPdfDirect(${index})" 
                     class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Tải Giấy báo thi (PDF)
+                    Lưu PDF / In thẻ
                   </button>
                 </div>
               `;
