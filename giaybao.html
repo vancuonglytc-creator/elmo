@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra Cứu Thông Tin Đăng Ký Cuộc Thi ELMO 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Thư viện tạo mã QR & canvas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    /* Bảng biểu cho mẫu giấy báo thi */
     .pdf-table {
       width: 100%;
       border-collapse: collapse;
@@ -33,7 +29,7 @@
       font-weight: 600;
     }
 
-    /* Định dạng in ấn: Khi bấm In/Lưu PDF sẽ chỉ hiện khung giấy báo thi khổ A4 chuẩn */
+    /* Định dạng in ấn: Tự động kích hoạt khi bấm In/Lưu PDF */
     @media print {
       body * {
         visibility: hidden;
@@ -55,7 +51,7 @@
       }
       @page {
         size: A4 portrait;
-        margin: 10mm;
+        margin: 8mm;
       }
     }
   </style>
@@ -122,9 +118,9 @@
     <div id="results" class="space-y-5"></div>
   </div>
 
-  <!-- Vùng chứa khung Giấy báo thi (ẩn trên web, xuất hiện khi in hoặc chụp ảnh) -->
+  <!-- Vùng chứa khung Giấy báo thi -->
   <div id="ticketPrintArea" class="hidden">
-    <div id="ticketCardBox" style="width: 720px; margin: 0 auto; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; padding: 20px 25px; box-sizing: border-box;">
+    <div style="width: 720px; margin: 0 auto; background: #ffffff; color: #172554; font-family: 'Times New Roman', Times, serif; padding: 20px 25px; box-sizing: border-box;">
       
       <!-- Logo Header -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px;">
@@ -150,8 +146,8 @@
           <td class="value-cell" style="font-size: 18px; font-weight: 800; color: #dc2626;" id="pdfRegNo">—</td>
           <!-- Cột hiển thị Mã QR điểm danh (ghép 3 hàng) -->
           <td rowspan="3" style="width: 135px; text-align: center; vertical-align: middle; padding: 4px; background: #fafafa;">
-            <div id="qrcodeContainer" style="display: flex; justify-content: center; align-items: center; margin-bottom: 2px;"></div>
-            <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: #1e3a8a;">MÃ QR ĐIỂM DANH</div>
+            <img id="qrcodeImg" src="" alt="Mã QR" style="width: 100px; height: 100px; margin: 0 auto; display: block;">
+            <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: #1e3a8a; margin-top: 2px;">MÃ QR ĐIỂM DANH</div>
           </td>
         </tr>
         <tr>
@@ -224,7 +220,7 @@
              s.includes('trùng dữ liệu') || 
              s.includes('hủy') || 
              s.includes('loại') || 
-             s.includes('từ chối') ||
+             s.includes('từ chối') || 
              s.includes('chưa đạt');
     }
 
@@ -259,15 +255,11 @@
       return 'bg-blue-50 text-blue-700 border-blue-200';
     }
 
-    function removeVietnameseTones(str) {
-      return str.normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/đ/g, 'd').replace(/Đ/g, 'D')
-        .replace(/[^a-zA-Z0-9]/g, '_');
-    }
+    // In trực tiếp ra PDF chuẩn A4 trong 0.5s
+    window.printPdfDirect = function(index) {
+      const item = fetchedData[index];
+      if (!item) return;
 
-    // Hàm điền dữ liệu vào mẫu giấy báo & vẽ mã QR
-    async function populateTicket(item) {
       const qrValue = item.regNo || item.profileCode || 'ELMO2026';
       document.getElementById('pdfRegNo').innerText = item.regNo || item.profileCode || '—';
       document.getElementById('pdfFullName').innerText = item.fullName || '—';
@@ -282,65 +274,25 @@
       document.getElementById('pdfTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
       document.getElementById('pdfTestTime').innerText = item.testTime || '10:30 - 11:30';
 
-      const qrContainer = document.getElementById('qrcodeContainer');
-      qrContainer.innerHTML = '';
-      new QRCode(qrContainer, {
-        text: qrValue,
-        width: 95,
-        height: 95,
-        colorDark: "#172554",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.M
-      });
-
-      await new Promise(r => setTimeout(r, 150));
-      return qrValue;
-    }
-
-    // 1. In trực tiếp / Lưu PDF chuẩn A4 (Không bao giờ bị treo)
-    window.printPdfDirect = async function(index) {
-      const item = fetchedData[index];
-      if (!item) return;
-
-      await populateTicket(item);
+      // Tạo QR bằng ảnh trực tiếp cực nhanh
+      const qrImg = document.getElementById('qrcodeImg');
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrValue)}`;
 
       ticketPrintArea.classList.remove('hidden');
-      window.print();
-      ticketPrintArea.classList.add('hidden');
-    };
 
-    // 2. Tải file ảnh PNG về máy (tùy chọn phụ lưu vào album ảnh điện thoại)
-    window.downloadImageDirect = async function(index, btnElement) {
-      const item = fetchedData[index];
-      if (!item) return;
-
-      const originalBtnText = btnElement.innerHTML;
-      btnElement.disabled = true;
-      btnElement.innerHTML = `Đang tải...`;
-
-      try {
-        const qrValue = await populateTicket(item);
-        ticketPrintArea.classList.remove('hidden');
-
-        const box = document.getElementById('ticketCardBox');
-        const canvas = await html2canvas(box, {
-          scale: 2,
-          useCORS: true,
-          backgroundColor: '#ffffff'
-        });
-
+      // Đợi ảnh QR nạp xong rồi mở ngay cửa sổ In/Lưu PDF
+      if (qrImg.complete) {
+        window.print();
         ticketPrintArea.classList.add('hidden');
-
-        const link = document.createElement('a');
-        link.download = `GiayBaoThi_${removeVietnameseTones(qrValue)}_${removeVietnameseTones(item.fullName)}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      } catch (err) {
-        ticketPrintArea.classList.add('hidden');
-        alert('Vui lòng sử dụng nút "Lưu PDF / In thẻ"!');
-      } finally {
-        btnElement.disabled = false;
-        btnElement.innerHTML = originalBtnText;
+      } else {
+        qrImg.onload = function() {
+          window.print();
+          ticketPrintArea.classList.add('hidden');
+        };
+        qrImg.onerror = function() {
+          window.print();
+          ticketPrintArea.classList.add('hidden');
+        };
       }
     };
 
@@ -375,23 +327,16 @@
             let actionHtml = '';
             if (canDownload) {
               actionHtml = `
-                <div class="pt-3 border-t flex flex-wrap justify-end gap-2">
-                  <button 
-                    type="button" 
-                    onclick="downloadImageDirect(${index}, this)" 
-                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition duration-150"
-                  >
-                    Tải file ảnh (.PNG)
-                  </button>
+                <div class="pt-3 border-t flex justify-end">
                   <button 
                     type="button" 
                     onclick="printPdfDirect(${index})" 
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    Lưu PDF / In thẻ
+                    In Giấy Báo Thi / Lưu PDF
                   </button>
                 </div>
               `;
