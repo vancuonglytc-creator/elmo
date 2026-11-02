@@ -5,12 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tra Cứu Thông Tin Đăng Ký Cuộc Thi ELMO 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Thư viện tạo mã QR trực tiếp trên canvas (nhẹ, nhanh, không phụ thuộc API ngoài) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <!-- Thư viện chụp màn hình & xuất PDF chuyên dụng -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* Định dạng bảng giấy báo thi chuẩn Word: Font Arial, chữ đen */
+    .ticket-box {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #000000;
+      background-color: #ffffff;
+      width: 760px;
+      padding: 24px 28px;
+      box-sizing: border-box;
+      line-height: 1.35;
+    }
+
+    .ticket-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+    }
+
+    .ticket-table td {
+      border: 1px solid #000000;
+      padding: 6px 10px;
+      vertical-align: middle;
+      font-size: 13px;
+      color: #000000;
+    }
+
+    .ticket-table .label-col {
+      width: 32%;
+      font-weight: bold;
+      background-color: #f8fafc;
+    }
+
+    .ticket-table .value-col {
+      font-size: 13.5px;
+      color: #000000;
+    }
+
+    /* Vùng kết xuất PDF: hiển thị ở tầng đáy ngoài màn hình để không che giao diện web */
+    #renderPdfWrapper {
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: -9999;
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body class="bg-slate-50 min-h-screen py-10 px-4 text-slate-800">
   <div class="max-w-xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-8">
-      <h1 class="text-2xl font-bold text-blue-900 uppercase">TRA CỨU SỐ BÁO DANH DỰ THI ELMO 2026</h1>
+      <h1 class="text-2xl font-bold text-blue-900 uppercase">TRA CỨU THÔNG TIN ĐĂNG KÝ DỰ THI ELMO 2026</h1>
       <p class="text-sm text-slate-500 mt-1">Lưu ý: Phụ huynh vui lòng kiểm tra kỹ thông tin, nếu sai bất kỳ thông tin nào phụ huynh vui lòng liên hệ Ban Tổ chức</p>
     </div>
 
@@ -45,190 +98,4 @@
           class="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl transition duration-200 shadow-sm"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-          Liên hệ Ban Tổ chức (Zalo)
-        </a>
-      </form>
-    </div>
-
-    <!-- Loading -->
-    <div id="loading" class="hidden text-center py-6 text-slate-500 font-medium">
-      <svg class="animate-spin h-6 w-6 mx-auto mb-2 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-      </svg>
-      Đang tìm kiếm dữ liệu...
-    </div>
-    
-    <!-- Error/Notice Message -->
-    <div id="message" class="hidden p-4 rounded-xl text-center text-sm font-medium mb-6"></div>
-
-    <!-- Results Area -->
-    <div id="results" class="space-y-5"></div>
-  </div>
-
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcGIv7WOnsdezBj1aBqqjfkPqTiLCbBM1AUfNf3JhYGfuq2uiWeszeHnHZeN7pgg6RvQ/exec";
-
-    const form = document.getElementById('searchForm');
-    const phoneInput = document.getElementById('phone');
-    const loading = document.getElementById('loading');
-    const message = document.getElementById('message');
-    const results = document.getElementById('results');
-    const btnSearch = document.getElementById('btnSearch');
-
-    function getStatusBadgeClass(status) {
-      const s = String(status || '').toLowerCase().trim();
-
-      // 1. Tô ĐỎ: Đăng ký không hợp lệ, trùng dữ liệu
-      if (
-        s.includes('không hợp lệ') || 
-        s.includes('trùng dữ liệu') || 
-        s.includes('hủy') || 
-        s.includes('bị loại') || 
-        s.includes('từ chối') ||
-        s.includes('chưa đạt')
-      ) {
-        return 'bg-rose-50 text-rose-700 border-rose-300 font-bold';
-      }
-
-      // 2. Tô CAM: Chưa hoàn tất lệ phí dự thi
-      if (
-        s.includes('chưa hoàn tất lệ phí') || 
-        s.includes('lệ phí') || 
-        s.includes('chưa đóng phí') ||
-        s.includes('chưa nộp phí')
-      ) {
-        return 'bg-orange-50 text-orange-700 border-orange-300 font-bold';
-      }
-
-      // 3. Tô VÀNG: Trạng thái chờ xử lý chung
-      if (s.includes('chờ') || s.includes('đang')) {
-        return 'bg-amber-50 text-amber-700 border-amber-300 font-medium';
-      }
-
-      // 4. Tô XANH LÁ: Hợp lệ / Đã duyệt / Đã xác nhận
-      if (
-        s.includes('hợp lệ') || 
-        s.includes('thành công') || 
-        s.includes('đã duyệt') || 
-        s.includes('hoàn tất') || 
-        s.includes('đã xác nhận')
-      ) {
-        return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold';
-      }
-
-      return 'bg-blue-50 text-blue-700 border-blue-200';
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const phone = phoneInput.value.trim();
-
-      results.innerHTML = '';
-      message.classList.add('hidden');
-      loading.classList.remove('hidden');
-      btnSearch.disabled = true;
-
-      try {
-        const response = await fetch(`${SCRIPT_URL}?phone=${encodeURIComponent(phone)}`);
-        const res = await response.json();
-
-        loading.classList.add('hidden');
-        btnSearch.disabled = false;
-
-        if (res.success && res.data && res.data.length > 0) {
-          res.data.forEach((item) => {
-            const card = document.createElement('div');
-            card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
-            
-            const badgeClass = getStatusBadgeClass(item.status);
-
-            card.innerHTML = `
-              <!-- Phần đầu: SBD nổi bật to đỏ và Trạng thái -->
-              <div class="flex items-center justify-between border-b pb-3">
-                <div>
-                  <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Số báo danh</span>
-                  <span class="text-2xl font-black text-red-600 tracking-wider">${item.regNo || '—'}</span>
-                </div>
-                <span class="border px-3 py-1 rounded-full text-xs ${badgeClass}">
-                  ${item.status || '—'}
-                </span>
-              </div>
-
-              <!-- Lưới hiển thị chi tiết các trường dữ liệu -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                <!-- Mã hồ sơ -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Mã hồ sơ</span>
-                  <p class="font-bold text-base text-blue-800">${item.profileCode || '—'}</p>
-                </div>
-
-                <!-- Họ và tên thí sinh -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Tên - Họ của thí sinh</span>
-                  <p class="font-bold text-base text-slate-900">${item.fullName || '—'}</p>
-                </div>
-
-                <!-- Ngày/Tháng/Năm sinh -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Ngày/Tháng/Năm sinh</span>
-                  <p class="font-semibold text-slate-800">${item.dob || '—'}</p>
-                </div>
-
-                <!-- Bảng đăng ký dự thi -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Bảng thi</span>
-                  <p class="font-semibold text-slate-800">${item.group || '—'}</p>
-                </div>
-
-                <!-- Tên trường của thí sinh -->
-                <div class="sm:col-span-2">
-                  <span class="text-slate-400 text-xs block">Trường của thí sinh</span>
-                  <p class="font-medium text-slate-800">${item.schoolName || '—'}</p>
-                </div>
-
-                <!-- Phường, xã, đặc khu nơi trường thí sinh theo học -->
-                <div class="sm:col-span-2">
-                  <span class="text-slate-400 text-xs block">Phường, xã, đặc khu nơi trường thí sinh theo học</span>
-                  <p class="font-medium text-slate-800">${item.schoolLocation || '—'}</p>
-                </div>
-
-                <!-- Địa điểm thi -->
-                <div class="sm:col-span-2">
-                  <span class="text-slate-400 text-xs block">Địa điểm thi</span>
-                  <p class="font-semibold text-slate-800">${item.venue || '—'}</p>
-                </div>
-
-                <!-- Thời gian thi -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Thời gian thi</span>
-                  <p class="font-semibold text-blue-900">${item.testTime || '—'}</p>
-                </div>
-
-                <!-- Ngày thi -->
-                <div>
-                  <span class="text-slate-400 text-xs block">Ngày thi</span>
-                  <p class="font-semibold text-blue-900">${item.testDate || '—'}</p>
-                </div>
-              </div>
-            `;
-            results.appendChild(card);
-          });
-        } else {
-          message.textContent = res.message || 'Không tìm thấy dữ liệu phù hợp.';
-          message.className = "p-4 rounded-xl text-center text-sm font-medium mb-6 bg-amber-50 text-amber-800 border border-amber-200";
-          message.classList.remove('hidden');
-        }
-      } catch (err) {
-        loading.classList.add('hidden');
-        btnSearch.disabled = false;
-        message.textContent = 'Có lỗi xảy ra khi kết nối máy chủ. Vui lòng thử lại sau.';
-        message.className = "p-4 rounded-xl text-center text-sm font-medium mb-6 bg-red-50 text-red-800 border border-red-200";
-        message.classList.remove('hidden');
-      }
-    });
-  </script>
-</body>
-</html>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.0
