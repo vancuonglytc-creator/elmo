@@ -98,4 +98,392 @@
           class="w-full inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 rounded-xl transition duration-200 shadow-sm"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.0
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          Liên hệ Ban Tổ chức (Zalo)
+        </a>
+      </form>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center py-6 text-slate-500 font-medium">
+      <svg class="animate-spin h-6 w-6 mx-auto mb-2 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      Đang tìm kiếm dữ liệu...
+    </div>
+    
+    <!-- Error/Notice Message -->
+    <div id="message" class="hidden p-4 rounded-xl text-center text-sm font-medium mb-6"></div>
+
+    <!-- Results Area -->
+    <div id="results" class="space-y-5"></div>
+  </div>
+
+  <!-- KHUNG MẪU GIẤY BÁO THI A4 (Chữ đen, in đậm tiêu đề, font Arial theo mẫu file Word) -->
+  <div id="renderPdfWrapper">
+    <div id="admissionTicketTemplate" class="ticket-box">
+      <!-- Dòng tiêu đề trên cùng -->
+      <div style="text-align: center; font-weight: bold; font-size: 14px; text-transform: uppercase; margin-bottom: 12px; border-bottom: 1px solid #000; padding-bottom: 6px;">
+        CUỘC THI OLYMPIC TOÁN HỌC ELMO NĂM 2026
+      </div>
+
+      <!-- Tiêu đề chính -->
+      <div style="text-align: center; margin-bottom: 14px;">
+        <h2 style="font-size: 18px; font-weight: bold; margin: 0; text-transform: uppercase;">ADMISSION TICKET (GIẤY BÁO THI)</h2>
+        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase;">REGISTRATION INFORMATION / THÔNG TIN ĐĂNG KÝ</p>
+      </div>
+
+      <!-- Bảng thông tin thí sinh & Mã QR số báo danh -->
+      <table class="ticket-table">
+        <tr>
+          <td class="label-col">
+            Registration No.<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Số báo danh)</span>
+          </td>
+          <td class="value-col" style="font-size: 17px; font-weight: bold;" id="tRegNo">—</td>
+          <!-- Cột mã QR Số báo danh (ghép 3 hàng) -->
+          <td rowspan="3" style="width: 145px; text-align: center; vertical-align: middle; padding: 6px; background: #ffffff;">
+            <canvas id="qrCodeCanvas" style="width: 110px; height: 110px; margin: 0 auto; display: block;"></canvas>
+            <div style="font-size: 9.5px; font-weight: bold; text-transform: uppercase; margin-top: 3px;">MÃ QR SỐ BÁO DANH</div>
+          </td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            Full Name<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Tên - Họ)</span>
+          </td>
+          <td class="value-col" style="font-weight: bold; font-size: 15px;" id="tFullName">—</td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            School Grade<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Trường - Phường, xã)</span>
+          </td>
+          <td class="value-col" id="tSchool">—</td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            Test Location<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Địa điểm thi)</span>
+          </td>
+          <td colspan="2" class="value-col" style="font-weight: bold;" id="tVenue">—</td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            ELMO No.<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Mã hồ sơ đăng ký)</span>
+          </td>
+          <td colspan="2" class="value-col" id="tProfileCode">—</td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            Test Date (dd/mm/yyyy)<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Ngày thi)</span>
+          </td>
+          <td colspan="2" class="value-col" id="tTestDate">14/11/2026 (thứ Bảy/Saturday)</td>
+        </tr>
+        <tr>
+          <td class="label-col">
+            Test Time<br>
+            <span style="font-weight: normal; font-size: 11.5px;">(Thời gian thi)</span>
+          </td>
+          <td colspan="2" class="value-col" style="font-weight: bold;" id="tTestTime">10:30 - 11:30</td>
+        </tr>
+      </table>
+
+      <!-- Khung thông báo dành cho người thi -->
+      <div style="border: 1px solid #000000; padding: 10px 14px; margin-bottom: 12px; background: #ffffff;">
+        <div style="text-align: center; font-weight: bold; font-size: 12.5px; text-transform: uppercase; margin-bottom: 6px;">
+          NOTICE FOR EXAMINEES (THÔNG BÁO DÀNH CHO NGƯỜI THI)
+        </div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 11.5px; line-height: 1.45; list-style-type: disc;">
+          <li>Thí sinh xuất trình <b>giấy báo này</b> khi làm thủ tục thi.</li>
+          <li>Thí sinh mặc đồng phục trường của mình khi đi thi.</li>
+          <li>Thí sinh phải có mặt tại điểm thi <b>trước giờ thi 60 phút</b> để làm thủ tục dự thi.</li>
+          <li>Cổng trường sẽ đóng trước giờ thi 15 phút.</li>
+          <li>Thí sinh đến muộn so với giờ thi sẽ không được phép vào phòng thi.</li>
+          <li>Việc xác nhận đồng ý dự thi ELMO từ Quý phụ huynh được đồng nghĩa với việc Quý phụ huynh đồng ý để Ban Tổ Chức sử dụng các hình ảnh và thông tin liên quan đến thí sinh cho các hoạt động truyền thông và quảng bá sự kiện về cuộc thi trong tương lai.</li>
+          <li>Thí sinh liên hệ BTC Cuộc thi thông qua kênh Zalo Official Account tại địa chỉ <b>https://zalo.me/khoahoctre</b> để được hỗ trợ giải đáp thắc mắc.</li>
+          <li>Thí sinh xem sổ tay thí sinh tại: <b>https://263.org.vn/elmo2026</b> - mục [CẨM NANG ELMO].</li>
+        </ul>
+      </div>
+
+      <!-- Ký tên Ban Tổ Chức -->
+      <div style="text-align: right; margin-top: 10px; padding-right: 15px;">
+        <p style="font-size: 12.5px; font-weight: bold; margin: 0; text-transform: uppercase;">BAN TỔ CHỨC CUỘC THI</p>
+        <p style="font-size: 13px; font-weight: bold; margin: 2px 0 0; text-transform: uppercase;">OLYMPIC TOÁN HỌC ELMO 2026</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcGIv7WOnsdezBj1aBqqjfkPqTiLCbBM1AUfNf3JhYGfuq2uiWeszeHnHZeN7pgg6RvQ/exec";
+
+    let fetchedData = [];
+
+    const form = document.getElementById('searchForm');
+    const phoneInput = document.getElementById('phone');
+    const loading = document.getElementById('loading');
+    const message = document.getElementById('message');
+    const results = document.getElementById('results');
+    const btnSearch = document.getElementById('btnSearch');
+
+    function isInvalidStatus(status) {
+      const s = String(status || '').toLowerCase();
+      return s.includes('không hợp lệ') || 
+             s.includes('trùng dữ liệu') || 
+             s.includes('hủy') || 
+             s.includes('loại') || 
+             s.includes('từ chối') || 
+             s.includes('chưa đạt');
+    }
+
+    function isUnpaidStatus(status) {
+      const s = String(status || '').toLowerCase();
+      return s.includes('chưa hoàn tất lệ phí') || 
+             s.includes('lệ phí') || 
+             s.includes('chưa đóng phí') || 
+             s.includes('chưa nộp phí');
+    }
+
+    function isEligibleToDownload(status) {
+      const s = String(status || '').toLowerCase();
+      if (isInvalidStatus(status) || isUnpaidStatus(status) || s.includes('chờ')) return false;
+      return s.includes('hợp lệ') || s.includes('thành công') || s.includes('đã duyệt') || s.includes('hoàn tất') || s.includes('đã xác nhận');
+    }
+
+    function getStatusBadgeClass(status) {
+      const s = String(status || '').toLowerCase().trim();
+      if (isInvalidStatus(status)) {
+        return 'bg-rose-50 text-rose-700 border-rose-300 font-bold';
+      }
+      if (isUnpaidStatus(status)) {
+        return 'bg-orange-50 text-orange-700 border-orange-300 font-bold';
+      }
+      if (s.includes('chờ') || s.includes('đang')) {
+        return 'bg-amber-50 text-amber-700 border-amber-300 font-medium';
+      }
+      if (s.includes('hợp lệ') || s.includes('thành công') || s.includes('đã duyệt') || s.includes('hoàn tất') || s.includes('đã xác nhận')) {
+        return 'bg-emerald-50 text-emerald-700 border-emerald-300 font-semibold';
+      }
+      return 'bg-blue-50 text-blue-700 border-blue-200';
+    }
+
+    function cleanFilename(str) {
+      return String(str || '')
+        .replace(/[\/\\:*?"<>|]/g, '_')
+        .trim();
+    }
+
+    // Hàm tạo & tải Giấy báo thi dạng file PDF (tên file là số báo danh)
+    window.downloadTicketPdf = async function(index, btnElement) {
+      const item = fetchedData[index];
+      if (!item) return;
+
+      const originalText = btnElement.innerHTML;
+      btnElement.disabled = true;
+      btnElement.innerHTML = `
+        <svg class="animate-spin h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        Đang tạo file PDF...
+      `;
+
+      try {
+        const sbd = item.regNo && item.regNo !== '—' ? item.regNo.trim() : (item.profileCode || 'GIAY_BAO_THI');
+
+        // 1. Điền dữ liệu vào khung in
+        document.getElementById('tRegNo').innerText = item.regNo || '—';
+        document.getElementById('tFullName').innerText = item.fullName || '—';
+
+        let schoolStr = item.schoolName || '—';
+        if (item.schoolLocation && item.schoolLocation !== '—') {
+          schoolStr += ', ' + item.schoolLocation;
+        }
+        document.getElementById('tSchool').innerText = schoolStr;
+        document.getElementById('tVenue').innerText = item.venue || '—';
+        document.getElementById('tProfileCode').innerText = item.profileCode || '—';
+        document.getElementById('tTestDate').innerText = item.testDate || '14/11/2026 (thứ Bảy/Saturday)';
+        document.getElementById('tTestTime').innerText = item.testTime || '10:30 - 11:30';
+
+        // 2. Tạo mã QR trực tiếp trên Canvas theo đúng Số Báo Danh
+        const qrCanvas = document.getElementById('qrCodeCanvas');
+        new QRious({
+          element: qrCanvas,
+          value: sbd,
+          size: 180,
+          level: 'H'
+        });
+
+        await new Promise(resolve => setTimeout(resolve, 80));
+
+        // 3. Chụp khung giấy báo & xuất file PDF
+        const targetElement = document.getElementById('admissionTicketTemplate');
+        const canvas = await html2canvas(targetElement, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        const pdfWidth = 210;
+        const margin = 10;
+        const printWidth = pdfWidth - (margin * 2);
+        const printHeight = (canvas.height * printWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', margin, margin, printWidth, printHeight);
+
+        // 4. Lưu tên file chính xác là Số Báo Danh (ví dụ S1543857.pdf)
+        pdf.save(`${cleanFilename(sbd)}.pdf`);
+
+      } catch (err) {
+        console.error(err);
+        alert('Có lỗi xảy ra khi tạo file PDF, vui lòng thử lại!');
+      } finally {
+        btnElement.disabled = false;
+        btnElement.innerHTML = originalText;
+      }
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phone = phoneInput.value.trim();
+
+      results.innerHTML = '';
+      message.classList.add('hidden');
+      loading.classList.remove('hidden');
+      btnSearch.disabled = true;
+
+      try {
+        const response = await fetch(`${SCRIPT_URL}?phone=${encodeURIComponent(phone)}`);
+        const res = await response.json();
+
+        loading.classList.add('hidden');
+        btnSearch.disabled = false;
+
+        if (res.success && res.data && res.data.length > 0) {
+          fetchedData = res.data;
+
+          res.data.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4";
+            
+            const badgeClass = getStatusBadgeClass(item.status);
+            const canDownload = isEligibleToDownload(item.status);
+            const isInvalid = isInvalidStatus(item.status);
+            const isUnpaid = isUnpaidStatus(item.status);
+
+            let actionHtml = '';
+            if (canDownload) {
+              actionHtml = `
+                <div class="pt-3 border-t flex justify-end">
+                  <button 
+                    type="button" 
+                    onclick="downloadTicketPdf(${index}, this)" 
+                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Tải Giấy báo thi (PDF)
+                  </button>
+                </div>
+              `;
+            } else if (isUnpaid) {
+              actionHtml = `
+                <div class="pt-2 border-t text-right">
+                  <span class="text-xs text-orange-600 italic font-medium">Hồ sơ chưa hoàn tất lệ phí. Vui lòng hoàn tất để tải giấy báo thi.</span>
+                </div>
+              `;
+            } else if (isInvalid) {
+              actionHtml = `
+                <div class="pt-2 border-t text-right">
+                  <span class="text-xs text-rose-500 italic font-medium">Không thể xuất giấy báo thi cho hồ sơ không hợp lệ.</span>
+                </div>
+              `;
+            } else {
+              actionHtml = `
+                <div class="pt-2 border-t text-right">
+                  <span class="text-xs text-amber-600 italic font-medium">Hồ sơ đang chờ xác nhận từ Ban Tổ chức.</span>
+                </div>
+              `;
+            }
+
+            card.innerHTML = `
+              <!-- Phần đầu: SBD nổi bật to đỏ và Trạng thái -->
+              <div class="flex items-center justify-between border-b pb-3">
+                <div>
+                  <span class="text-xs uppercase tracking-wider text-slate-500 font-semibold block">Số báo danh</span>
+                  <span class="text-2xl font-black text-red-600 tracking-wider">${item.regNo || '—'}</span>
+                </div>
+                <span class="border px-3 py-1 rounded-full text-xs ${badgeClass}">
+                  ${item.status || '—'}
+                </span>
+              </div>
+
+              <!-- Lưới hiển thị chi tiết các trường dữ liệu -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span class="text-slate-400 text-xs block">Mã hồ sơ</span>
+                  <p class="font-bold text-base text-blue-800">${item.profileCode || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Họ và tên thí sinh</span>
+                  <p class="font-bold text-base text-slate-900">${item.fullName || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Ngày/Tháng/Năm sinh</span>
+                  <p class="font-semibold text-slate-800">${item.dob || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Bảng đăng ký dự thi</span>
+                  <p class="font-semibold text-slate-800">${item.group || '—'}</p>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-slate-400 text-xs block">Tên trường của thí sinh</span>
+                  <p class="font-medium text-slate-800">${item.schoolName || '—'}</p>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-slate-400 text-xs block">Phường, xã, đặc khu nơi trường thí sinh theo học</span>
+                  <p class="font-medium text-slate-800">${item.schoolLocation || '—'}</p>
+                </div>
+                <div class="sm:col-span-2">
+                  <span class="text-slate-400 text-xs block">Địa điểm thi</span>
+                  <p class="font-semibold text-slate-800">${item.venue || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Thời gian thi</span>
+                  <p class="font-semibold text-blue-900">${item.testTime || '—'}</p>
+                </div>
+                <div>
+                  <span class="text-slate-400 text-xs block">Ngày thi</span>
+                  <p class="font-semibold text-blue-900">${item.testDate || '—'}</p>
+                </div>
+              </div>
+
+              ${actionHtml}
+            `;
+            results.appendChild(card);
+          });
+        } else {
+          message.textContent = res.message || 'Không tìm thấy dữ liệu phù hợp.';
+          message.className = "p-4 rounded-xl text-center text-sm font-medium mb-6 bg-amber-50 text-amber-800 border border-amber-200";
+          message.classList.remove('hidden');
+        }
+      } catch (err) {
+        loading.classList.add('hidden');
+        btnSearch.disabled = false;
+        message.textContent = 'Có lỗi xảy ra khi kết nối máy chủ. Vui lòng thử lại sau.';
+        message.className = "p-4 rounded-xl text-center text-sm font-medium mb-6 bg-red-50 text-red-800 border border-red-200";
+        message.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
