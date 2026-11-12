@@ -31,13 +31,13 @@
       color: var(--primary); font-size: 1.25rem; margin: 0; text-transform: uppercase;
     }
     .sync-badge {
-      font-size: 0.78rem; padding: 4px 8px; border-radius: 20px; font-weight: 600;
+      font-size: 0.78rem; padding: 4px 10px; border-radius: 20px; font-weight: 600;
       background: #e2e8f0; color: #475569;
     }
     .sync-ready { background: #dcfce7; color: #166534; }
     .sync-pending { background: #fef3c7; color: #92400e; }
+    .sync-error { background: #fee2e2; color: #991b1b; }
 
-    /* Khung Camera & Nút Bật/Tắt */
     .camera-wrapper {
       position: relative; width: 100%; margin-bottom: 14px;
     }
@@ -46,12 +46,12 @@
       border: 2px solid #cbd5e1; background: #1e293b;
     }
     .camera-off-placeholder {
-      display: none; height: 140px; background: #1e293b; color: #94a3b8;
+      display: none; height: 120px; background: #1e293b; color: #94a3b8;
       border-radius: 10px; align-items: center; justify-content: center;
       font-weight: 600; border: 2px dashed #475569;
     }
     .cam-controls {
-      display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px;
+      display: flex; justify-content: flex-end; margin-top: 8px;
     }
     .btn-cam {
       padding: 8px 14px; font-size: 0.9rem; font-weight: 600; border-radius: 6px;
@@ -60,7 +60,6 @@
     .btn-cam.active { background: var(--danger); }
     .btn-cam.off { background: var(--success); }
 
-    /* Nhập tay SBD */
     .manual-input {
       display: flex; gap: 8px; margin-bottom: 14px;
     }
@@ -78,6 +77,7 @@
       text-align: center; font-weight: 700; margin-bottom: 14px; padding: 11px;
       border-radius: 8px; display: none; font-size: 0.96rem;
     }
+    .msg-loading { background: #e0f2fe; color: #0369a1; display: block !important; }
     .msg-success { background: #dcfce7; color: var(--success); display: block !important; }
     .msg-warning { background: #fef3c7; color: var(--warning); display: block !important; }
     .msg-error { background: #fee2e2; color: var(--danger); display: block !important; }
@@ -108,10 +108,9 @@
 <div class="container">
   <div class="header-bar">
     <h1>Điểm Danh ELMO 2026</h1>
-    <span id="sync-status" class="sync-badge">Đang tải dữ liệu...</span>
+    <span id="sync-status" class="sync-badge">Đang tải DS...</span>
   </div>
 
-  <!-- Khu vực Camera mặc định -->
   <div class="camera-wrapper">
     <div id="reader"></div>
     <div id="cam-placeholder" class="camera-off-placeholder">📷 Camera đang tắt</div>
@@ -120,16 +119,13 @@
     </div>
   </div>
 
-  <!-- Nhập tay SBD -->
   <div class="manual-input">
     <input type="text" id="sbd-input" placeholder="Nhập SBD (VD: S1550125)..." autocomplete="off" />
     <button class="btn-submit" onclick="manualCheckin()">Điểm danh</button>
   </div>
 
-  <!-- Thông báo -->
   <div id="status-msg"></div>
 
-  <!-- Thẻ hiển thị kết quả -->
   <div id="result-card">
     <div class="sbd-box">
       <span class="label">Số báo danh</span>
@@ -160,11 +156,11 @@
 
 <script>
   // DÁN LINK WEB APP GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
-  const SCRIPT_URL = "DAN_LINK_WEB_APP_CUA_BAN_VAO_DAY";
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypkQ23cOk3mjcAH1DNXy06yOw0rwXTEJhMKFlo5z3rYhUKbyo4cAvjuWuHwsb9jsiC/exec";
 
-  let studentDB = {};         // Bộ nhớ đệm toàn bộ 4.753 thí sinh trên RAM
+  let studentDB = {};
   let isDataLoaded = false;
-  let syncQueue = [];         // Hàng đợi gửi lên Google Sheets
+  let syncQueue = [];
   let isSyncing = false;
 
   let html5QrCode = null;
@@ -172,11 +168,14 @@
   let lastScannedCode = "";
   let lastScanTime = 0;
 
-  // 1. Tải trước danh sách thí sinh ngay khi mở web
+  // 1. Tải danh sách thí sinh về RAM (thêm redirect: "follow" chuẩn cho Google Apps Script)
   async function loadStudentDatabase() {
     const badge = document.getElementById("sync-status");
     try {
-      const res = await fetch(SCRIPT_URL);
+      const res = await fetch(SCRIPT_URL, {
+        method: "GET",
+        redirect: "follow"
+      });
       const json = await res.json();
       if (json.status === "success") {
         studentDB = json.data;
@@ -184,13 +183,17 @@
         const count = Object.keys(studentDB).length;
         badge.innerText = `Sẵn sàng (${count} TS)`;
         badge.className = "sync-badge sync-ready";
+      } else {
+        badge.innerText = "Lỗi tải DS";
+        badge.className = "sync-badge sync-error";
       }
     } catch (e) {
-      badge.innerText = "Chế độ trực tuyến";
+      badge.innerText = "Chế độ trực tiếp";
+      badge.className = "sync-badge sync-pending";
     }
   }
 
-  // 2. Điều khiển Camera mặc định (Bật / Tắt không hỏi chọn camera)
+  // 2. Điều khiển Camera
   async function startCamera() {
     if (isCameraRunning) return;
     if (!html5QrCode) {
@@ -203,7 +206,6 @@
     try {
       readerEl.style.display = "block";
       placeholderEl.style.display = "none";
-      // facingMode: "environment" tự động lấy camera sau trên điện thoại hoặc webcam mặc định trên PC
       await html5QrCode.start(
         { facingMode: "environment" },
         { fps: 12, qrbox: { width: 230, height: 230 } },
@@ -213,7 +215,6 @@
       btn.innerText = "Tắt Camera";
       btn.className = "btn-cam active";
     } catch (err) {
-      // Fallback nếu thiết bị không có camera sau (ví dụ laptop chỉ có camera trước)
       try {
         await html5QrCode.start(
           { facingMode: "user" },
@@ -226,7 +227,7 @@
       } catch (e2) {
         readerEl.style.display = "none";
         placeholderEl.style.display = "flex";
-        placeholderEl.innerText = "⚠️ Không thể mở Camera (Vui lòng cấp quyền)";
+        placeholderEl.innerText = "📷 Không mở được Camera (Có thể nhập SBD bên dưới)";
         btn.innerText = "Bật Camera";
         btn.className = "btn-cam off";
       }
@@ -252,7 +253,6 @@
     else startCamera();
   }
 
-  // 3. Âm thanh phản hồi
   function playBeep(isSuccess = true) {
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -268,22 +268,21 @@
     } catch (e) {}
   }
 
-  // 4. Hàm lấy giờ hiện tại định dạng HH:mm:ss dd/MM/yyyy
   function getCurrentTimeFormatted() {
     const now = new Date();
     const pad = (n) => String(n).padStart(2, "0");
     return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
   }
 
-  // 5. Xử lý điểm danh TỨC THÌ (0.01 giây)
-  function processCheckin(rawSbd) {
+  // 3. Xử lý điểm danh (hỗ trợ cả tra cứu RAM 0.01s và gọi trực tiếp nếu RAM chưa tải xong)
+  async function processCheckin(rawSbd) {
     const sbd = String(rawSbd || "").trim().toUpperCase();
     if (!sbd) return;
 
     const statusEl = document.getElementById("status-msg");
     const resultCard = document.getElementById("result-card");
 
-    // Nếu đã tải danh sách về RAM -> Tra cứu tức thì không cần đợi mạng
+    // TRƯỜNG HỢP 1: Danh sách đã tải về RAM -> Hiển thị tức thì 0.01s
     if (isDataLoaded) {
       const st = studentDB[sbd];
       if (!st) {
@@ -310,12 +309,49 @@
         statusEl.innerText = `✅ ĐIỂM DANH THÀNH CÔNG LÚC ${nowStr}`;
         resultCard.style.borderColor = "var(--success)";
 
-        // Đẩy vào hàng đợi đồng bộ ngầm lên Google Sheets
         enqueueSync(sbd, st.r);
       }
-    } else {
-      // Dự phòng trường hợp người dùng quét ngay khi dữ liệu chưa kịp tải xong
-      enqueueSync(sbd, 0, true);
+      return;
+    }
+
+    // TRƯỜNG HỢP 2: Nếu dữ liệu RAM chưa kịp tải -> Gọi trực tiếp server và hiện kết quả ngay
+    statusEl.className = "msg-loading";
+    statusEl.innerText = "⏳ Đang kiểm tra SBD " + sbd + "...";
+    resultCard.style.display = "none";
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ sbd: sbd, row: 0 })
+      });
+      const data = await res.json();
+
+      if (data.status === "success" && data.student) {
+        playBeep(true);
+        studentDB[sbd] = data.student;
+        renderStudentCard(data.student);
+        document.getElementById("sbd-input").value = "";
+
+        if (data.alreadyCheckedIn) {
+          statusEl.className = "msg-warning";
+          statusEl.innerText = `⚠️ THÍ SINH ĐÃ ĐIỂM DANH LÚC ${data.checkinTime}`;
+          resultCard.style.borderColor = "var(--warning)";
+        } else {
+          statusEl.className = "msg-success";
+          statusEl.innerText = `✅ ĐIỂM DANH THÀNH CÔNG LÚC ${data.checkinTime}`;
+          resultCard.style.borderColor = "var(--success)";
+        }
+      } else {
+        playBeep(false);
+        statusEl.className = "msg-error";
+        statusEl.innerText = "❌ " + (data.message || "Không tìm thấy SBD");
+      }
+    } catch (err) {
+      playBeep(false);
+      statusEl.className = "msg-error";
+      statusEl.innerText = "❌ Lỗi kết nối đến Google Sheets! Kiểm tra lại quyền truy cập Web App.";
     }
   }
 
@@ -329,9 +365,9 @@
     document.getElementById("result-card").style.display = "block";
   }
 
-  // 6. Hàng đợi đồng bộ ngầm (Chịu tải 20-30 máy gửi cùng lúc không rớt gói tin)
-  function enqueueSync(sbd, row, isFallback = false) {
-    syncQueue.push({ sbd, row, isFallback, retries: 0 });
+  // 4. Hàng đợi đồng bộ ngầm chuẩn CORS (headers text/plain + redirect follow)
+  function enqueueSync(sbd, row) {
+    syncQueue.push({ sbd, row, retries: 0 });
     updateSyncBadge();
     processSyncQueue();
   }
@@ -355,18 +391,18 @@
     try {
       const res = await fetch(SCRIPT_URL, {
         method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ sbd: item.sbd, row: item.row })
       });
       const data = await res.json();
 
       if (data.status === "busy") {
-        // Nếu 30 máy cùng ghi đúng 1 mili-giây -> đợi 400ms rồi tự gửi lại
         isSyncing = false;
         setTimeout(processSyncQueue, 400);
         return;
       }
 
-      // Cập nhật lại giờ chính xác từ server nếu máy khác đã quét thí sinh này trước đó
       if (data.status === "success" && data.alreadyCheckedIn && studentDB[item.sbd]) {
         studentDB[item.sbd].t = data.checkinTime;
         const statusEl = document.getElementById("status-msg");
@@ -377,11 +413,17 @@
         }
       }
 
-      syncQueue.shift(); // Xóa khỏi hàng đợi khi đã lưu thành công
+      syncQueue.shift();
     } catch (e) {
       item.retries++;
-      if (item.retries > 5) syncQueue.shift();
-      await new Promise(r => setTimeout(r, 800));
+      if (item.retries > 5) {
+        syncQueue.shift();
+        const badge = document.getElementById("sync-status");
+        badge.innerText = "Lỗi lưu Sheet!";
+        badge.className = "sync-badge sync-error";
+      } else {
+        await new Promise(r => setTimeout(r, 800));
+      }
     }
 
     isSyncing = false;
@@ -407,7 +449,6 @@
     processCheckin(decodedText);
   }
 
-  // Khởi chạy ngay khi tải trang
   window.addEventListener("DOMContentLoaded", () => {
     loadStudentDatabase();
     startCamera();
