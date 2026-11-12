@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Điểm Danh Thí Sinh - Toán ELMO 2026</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <style>
+    :root {
+      --primary: #0056b3;
+      --bg: #f0f4f8;
+      --card-bg: #ffffff;
+      --danger: #d90429;
+      --success: #1b7a37;
+      --warning: #d97706;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body {
+      margin: 0; padding: 12px; background-color: var(--bg);
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .container {
+      width: 100%; max-width: 580px; background: var(--card-bg);
+      padding: 20px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    h1 {
+      text-align: center; color: var(--primary); font-size: 1.4rem; margin: 0 0 15px 0;
+      border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; text-transform: uppercase;
+    }
+    #reader {
+      width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px;
+      border: 2px solid #cbd5e1; background: #000;
+    }
+    .manual-input {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    input[type="text"] {
+      flex: 1; padding: 12px 14px; font-size: 1.05rem; border: 1.5px solid #cbd5e1;
+      border-radius: 8px; text-transform: uppercase; outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--primary); }
+    button {
+      padding: 12px 18px; font-size: 1rem; font-weight: 700; color: #fff;
+      background-color: var(--primary); border: none; border-radius: 8px; cursor: pointer;
+      white-space: nowrap;
+    }
+    button:hover { background-color: #004494; }
+    button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+    #status-msg {
+      text-align: center; font-weight: 700; margin-bottom: 15px; padding: 12px;
+      border-radius: 8px; display: none; font-size: 0.98rem;
+    }
+    .msg-loading { background: #e0f2fe; color: #0369a1; display: block !important; }
+    .msg-success { background: #dcfce7; color: var(--success); display: block !important; }
+    .msg-warning { background: #fef3c7; color: var(--warning); display: block !important; }
+    .msg-error { background: #fee2e2; color: var(--danger); display: block !important; }
+
+    #result-card {
+      display: none; border: 2.5px solid var(--success); border-radius: 12px;
+      padding: 18px; background: #ffffff;
+    }
+    .sbd-box {
+      background: #fff5f5; border: 1px dashed #feb2b2; padding: 10px 14px;
+      border-radius: 8px; margin-bottom: 14px; text-align: center;
+    }
+    .sbd-highlight {
+      color: #d90429; /* Tô đỏ */
+      font-weight: 900; /* In đậm */
+      font-size: 1.85rem;
+      letter-spacing: 1.5px;
+      display: block;
+    }
+    .info-row {
+      margin-bottom: 11px; padding-bottom: 9px; border-bottom: 1px solid #f1f5f9;
+      font-size: 1.05rem; line-height: 1.45;
+    }
+    .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .label { font-weight: 600; color: #64748b; display: block; font-size: 0.85rem; text-transform: uppercase; }
+    .value { color: #0f172a; font-weight: 600; }
+    .student-name { font-size: 1.25rem; font-weight: 800; color: #0056b3; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Điểm Danh Toán ELMO 2026</h1>
+
+  <!-- Camera quét QR -->
+  <div id="reader"></div>
+
+  <!-- Nhập tay SBD -->
+  <div class="manual-input">
+    <input type="text" id="sbd-input" placeholder="Nhập SBD (VD: S1550125)..." autocomplete="off" />
+    <button id="btn-checkin" onclick="manualCheckin()">Điểm danh</button>
+  </div>
+
+  <!-- Thông báo -->
+  <div id="status-msg"></div>
+
+  <!-- Thẻ hiển thị kết quả -->
+  <div id="result-card">
+    <div class="sbd-box">
+      <span class="label">Số báo danh</span>
+      <span id="res-sbd" class="sbd-highlight"></span>
+    </div>
+    <div class="info-row">
+      <span class="label">Tên - Họ thí sinh</span>
+      <span id="res-hoten" class="value student-name"></span>
+    </div>
+    <div class="info-row">
+      <span class="label">Trường & Địa bàn (Phường/Xã/Đặc khu)</span>
+      <span id="res-truong" class="value"></span>
+    </div>
+    <div class="info-row">
+      <span class="label">Bảng thi</span>
+      <span id="res-bang" class="value"></span>
+    </div>
+    <div class="info-row">
+      <span class="label">Khu vực thi</span>
+      <span id="res-khuvuc" class="value"></span>
+    </div>
+    <div class="info-row">
+      <span class="label">Phụ huynh & Số điện thoại liên hệ</span>
+      <span id="res-phuhuynh" class="value"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // THAY ĐƯỜNG LINK WEB APP GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypkQ23cOk3mjcAH1DNXy06yOw0rwXTEJhMKFlo5z3rYhUKbyo4cAvjuWuHwsb9jsiC/exec";
+
+  let isProcessing = false;
+  let lastScannedCode = "";
+  let lastScanTime = 0;
+
+  function playBeep(isSuccess = true) {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.type = isSuccess ? "sine" : "sawtooth";
+      oscillator.frequency.value = isSuccess ? 900 : 300;
+      gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + (isSuccess ? 0.15 : 0.3));
+    } catch (e) {}
+  }
+
+  async function processCheckin(sbd) {
+    if (isProcessing || !sbd) return;
+    isProcessing = true;
+
+    const statusEl = document.getElementById("status-msg");
+    const resultCard = document.getElementById("result-card");
+    const btnCheckin = document.getElementById("btn-checkin");
+
+    statusEl.className = "msg-loading";
+    statusEl.innerText = "⏳ Đang kiểm tra dữ liệu thí sinh " + sbd.toUpperCase() + "...";
+    resultCard.style.display = "none";
+    btnCheckin.disabled = true;
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ sbd: sbd })
+      });
+      const data = await response.json();
+
+      if (data.status === "success") {
+        playBeep(true);
+        const st = data.student;
+
+        document.getElementById("res-sbd").innerText = st.sbd;
+        document.getElementById("res-hoten").innerText = st.hoTen;
+        document.getElementById("res-truong").innerText = `${st.truong} — ${st.phuongXa}`;
+        document.getElementById("res-bang").innerText = st.bangThi;
+        document.getElementById("res-khuvuc").innerText = st.khuVuc;
+        document.getElementById("res-phuhuynh").innerText = `${st.phuHuynh} (SĐT: ${st.sdt})`;
+
+        resultCard.style.display = "block";
+        document.getElementById("sbd-input").value = "";
+
+        if (data.alreadyCheckedIn) {
+          statusEl.className = "msg-warning";
+          statusEl.innerText = `⚠️ THÍ SINH ĐÃ ĐIỂM DANH TRƯỚC ĐÓ LÚC ${data.checkinTime}`;
+          resultCard.style.borderColor = "var(--warning)";
+        } else {
+          statusEl.className = "msg-success";
+          statusEl.innerText = `✅ ĐIỂM DANH THÀNH CÔNG LÚC ${data.checkinTime}`;
+          resultCard.style.borderColor = "var(--success)";
+        }
+      } else {
+        playBeep(false);
+        statusEl.className = "msg-error";
+        statusEl.innerText = "❌ " + data.message;
+      }
+    } catch (error) {
+      playBeep(false);
+      statusEl.className = "msg-error";
+      statusEl.innerText = "❌ Lỗi kết nối! Vui lòng kiểm tra mạng hoặc cấu hình SCRIPT_URL.";
+    } finally {
+      isProcessing = false;
+      btnCheckin.disabled = false;
+    }
+  }
+
+  function manualCheckin() {
+    const sbd = document.getElementById("sbd-input").value.trim();
+    if (!sbd) {
+      alert("Vui lòng nhập Số báo danh!");
+      return;
+    }
+    processCheckin(sbd);
+  }
+
+  document.getElementById("sbd-input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") manualCheckin();
+  });
+
+  function onScanSuccess(decodedText) {
+    const now = Date.now();
+    // Chống quét trùng cùng 1 mã trong 3 giây
+    if (decodedText === lastScannedCode && (now - lastScanTime) < 3000) {
+      return;
+    }
+    lastScannedCode = decodedText;
+    lastScanTime = now;
+    processCheckin(decodedText);
+  }
+
+  const html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader",
+    {
+      fps: 10,
+      qrbox: { width: 240, height: 240 },
+      rememberLastUsedCamera: true,
+      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
+    },
+    false
+  );
+  html5QrcodeScanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>
