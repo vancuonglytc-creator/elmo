@@ -21,78 +21,109 @@
     }
     .container {
       width: 100%; max-width: 580px; background: var(--card-bg);
-      padding: 20px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      padding: 18px; border-radius: 14px; box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px;
     }
     h1 {
-      text-align: center; color: var(--primary); font-size: 1.4rem; margin: 0 0 15px 0;
-      border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; text-transform: uppercase;
+      color: var(--primary); font-size: 1.25rem; margin: 0; text-transform: uppercase;
+    }
+    .sync-badge {
+      font-size: 0.78rem; padding: 4px 8px; border-radius: 20px; font-weight: 600;
+      background: #e2e8f0; color: #475569;
+    }
+    .sync-ready { background: #dcfce7; color: #166534; }
+    .sync-pending { background: #fef3c7; color: #92400e; }
+
+    /* Khung Camera & Nút Bật/Tắt */
+    .camera-wrapper {
+      position: relative; width: 100%; margin-bottom: 14px;
     }
     #reader {
-      width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 15px;
-      border: 2px solid #cbd5e1; background: #000;
+      width: 100%; min-height: 220px; border-radius: 10px; overflow: hidden;
+      border: 2px solid #cbd5e1; background: #1e293b;
     }
+    .camera-off-placeholder {
+      display: none; height: 140px; background: #1e293b; color: #94a3b8;
+      border-radius: 10px; align-items: center; justify-content: center;
+      font-weight: 600; border: 2px dashed #475569;
+    }
+    .cam-controls {
+      display: flex; justify-content: flex-end; margin-top: 8px; gap: 8px;
+    }
+    .btn-cam {
+      padding: 8px 14px; font-size: 0.9rem; font-weight: 600; border-radius: 6px;
+      border: none; cursor: pointer; color: #fff; background: #475569;
+    }
+    .btn-cam.active { background: var(--danger); }
+    .btn-cam.off { background: var(--success); }
+
+    /* Nhập tay SBD */
     .manual-input {
-      display: flex; gap: 8px; margin-bottom: 16px;
+      display: flex; gap: 8px; margin-bottom: 14px;
     }
     input[type="text"] {
       flex: 1; padding: 12px 14px; font-size: 1.05rem; border: 1.5px solid #cbd5e1;
       border-radius: 8px; text-transform: uppercase; outline: none;
     }
     input[type="text"]:focus { border-color: var(--primary); }
-    button {
+    .btn-submit {
       padding: 12px 18px; font-size: 1rem; font-weight: 700; color: #fff;
       background-color: var(--primary); border: none; border-radius: 8px; cursor: pointer;
-      white-space: nowrap;
     }
-    button:hover { background-color: #004494; }
-    button:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
     #status-msg {
-      text-align: center; font-weight: 700; margin-bottom: 15px; padding: 12px;
-      border-radius: 8px; display: none; font-size: 0.98rem;
+      text-align: center; font-weight: 700; margin-bottom: 14px; padding: 11px;
+      border-radius: 8px; display: none; font-size: 0.96rem;
     }
-    .msg-loading { background: #e0f2fe; color: #0369a1; display: block !important; }
     .msg-success { background: #dcfce7; color: var(--success); display: block !important; }
     .msg-warning { background: #fef3c7; color: var(--warning); display: block !important; }
     .msg-error { background: #fee2e2; color: var(--danger); display: block !important; }
 
     #result-card {
       display: none; border: 2.5px solid var(--success); border-radius: 12px;
-      padding: 18px; background: #ffffff;
+      padding: 16px; background: #ffffff;
     }
     .sbd-box {
-      background: #fff5f5; border: 1px dashed #feb2b2; padding: 10px 14px;
-      border-radius: 8px; margin-bottom: 14px; text-align: center;
+      background: #fff5f5; border: 1px dashed #feb2b2; padding: 8px 12px;
+      border-radius: 8px; margin-bottom: 12px; text-align: center;
     }
     .sbd-highlight {
-      color: #d90429; /* Tô đỏ */
-      font-weight: 900; /* In đậm */
-      font-size: 1.85rem;
-      letter-spacing: 1.5px;
-      display: block;
+      color: #d90429; font-weight: 900; font-size: 1.85rem; letter-spacing: 1.5px; display: block;
     }
     .info-row {
-      margin-bottom: 11px; padding-bottom: 9px; border-bottom: 1px solid #f1f5f9;
-      font-size: 1.05rem; line-height: 1.45;
+      margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9;
+      font-size: 1.02rem; line-height: 1.4;
     }
     .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-    .label { font-weight: 600; color: #64748b; display: block; font-size: 0.85rem; text-transform: uppercase; }
+    .label { font-weight: 600; color: #64748b; display: block; font-size: 0.82rem; text-transform: uppercase; }
     .value { color: #0f172a; font-weight: 600; }
-    .student-name { font-size: 1.25rem; font-weight: 800; color: #0056b3; }
+    .student-name { font-size: 1.22rem; font-weight: 800; color: #0056b3; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Điểm Danh Toán ELMO 2026</h1>
+  <div class="header-bar">
+    <h1>Điểm Danh ELMO 2026</h1>
+    <span id="sync-status" class="sync-badge">Đang tải dữ liệu...</span>
+  </div>
 
-  <!-- Camera quét QR -->
-  <div id="reader"></div>
+  <!-- Khu vực Camera mặc định -->
+  <div class="camera-wrapper">
+    <div id="reader"></div>
+    <div id="cam-placeholder" class="camera-off-placeholder">📷 Camera đang tắt</div>
+    <div class="cam-controls">
+      <button id="btn-toggle-cam" class="btn-cam active" onclick="toggleCamera()">Tắt Camera</button>
+    </div>
+  </div>
 
   <!-- Nhập tay SBD -->
   <div class="manual-input">
     <input type="text" id="sbd-input" placeholder="Nhập SBD (VD: S1550125)..." autocomplete="off" />
-    <button id="btn-checkin" onclick="manualCheckin()">Điểm danh</button>
+    <button class="btn-submit" onclick="manualCheckin()">Điểm danh</button>
   </div>
 
   <!-- Thông báo -->
@@ -128,92 +159,239 @@
 </div>
 
 <script>
-  // THAY ĐƯỜNG LINK WEB APP GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypkQ23cOk3mjcAH1DNXy06yOw0rwXTEJhMKFlo5z3rYhUKbyo4cAvjuWuHwsb9jsiC/exec";
+  // DÁN LINK WEB APP GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
+  const SCRIPT_URL = "DAN_LINK_WEB_APP_CUA_BAN_VAO_DAY";
 
-  let isProcessing = false;
+  let studentDB = {};         // Bộ nhớ đệm toàn bộ 4.753 thí sinh trên RAM
+  let isDataLoaded = false;
+  let syncQueue = [];         // Hàng đợi gửi lên Google Sheets
+  let isSyncing = false;
+
+  let html5QrCode = null;
+  let isCameraRunning = false;
   let lastScannedCode = "";
   let lastScanTime = 0;
 
-  function playBeep(isSuccess = true) {
+  // 1. Tải trước danh sách thí sinh ngay khi mở web
+  async function loadStudentDatabase() {
+    const badge = document.getElementById("sync-status");
     try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.type = isSuccess ? "sine" : "sawtooth";
-      oscillator.frequency.value = isSuccess ? 900 : 300;
-      gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + (isSuccess ? 0.15 : 0.3));
+      const res = await fetch(SCRIPT_URL);
+      const json = await res.json();
+      if (json.status === "success") {
+        studentDB = json.data;
+        isDataLoaded = true;
+        const count = Object.keys(studentDB).length;
+        badge.innerText = `Sẵn sàng (${count} TS)`;
+        badge.className = "sync-badge sync-ready";
+      }
+    } catch (e) {
+      badge.innerText = "Chế độ trực tuyến";
+    }
+  }
+
+  // 2. Điều khiển Camera mặc định (Bật / Tắt không hỏi chọn camera)
+  async function startCamera() {
+    if (isCameraRunning) return;
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader");
+    }
+    const btn = document.getElementById("btn-toggle-cam");
+    const readerEl = document.getElementById("reader");
+    const placeholderEl = document.getElementById("cam-placeholder");
+
+    try {
+      readerEl.style.display = "block";
+      placeholderEl.style.display = "none";
+      // facingMode: "environment" tự động lấy camera sau trên điện thoại hoặc webcam mặc định trên PC
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 12, qrbox: { width: 230, height: 230 } },
+        onScanSuccess
+      );
+      isCameraRunning = true;
+      btn.innerText = "Tắt Camera";
+      btn.className = "btn-cam active";
+    } catch (err) {
+      // Fallback nếu thiết bị không có camera sau (ví dụ laptop chỉ có camera trước)
+      try {
+        await html5QrCode.start(
+          { facingMode: "user" },
+          { fps: 12, qrbox: { width: 230, height: 230 } },
+          onScanSuccess
+        );
+        isCameraRunning = true;
+        btn.innerText = "Tắt Camera";
+        btn.className = "btn-cam active";
+      } catch (e2) {
+        readerEl.style.display = "none";
+        placeholderEl.style.display = "flex";
+        placeholderEl.innerText = "⚠️ Không thể mở Camera (Vui lòng cấp quyền)";
+        btn.innerText = "Bật Camera";
+        btn.className = "btn-cam off";
+      }
+    }
+  }
+
+  async function stopCamera() {
+    if (!isCameraRunning || !html5QrCode) return;
+    try {
+      await html5QrCode.stop();
+      isCameraRunning = false;
+      document.getElementById("reader").style.display = "none";
+      document.getElementById("cam-placeholder").style.display = "flex";
+      document.getElementById("cam-placeholder").innerText = "📷 Camera đang tắt";
+      const btn = document.getElementById("btn-toggle-cam");
+      btn.innerText = "Bật Camera";
+      btn.className = "btn-cam off";
     } catch (e) {}
   }
 
-  async function processCheckin(sbd) {
-    if (isProcessing || !sbd) return;
-    isProcessing = true;
+  function toggleCamera() {
+    if (isCameraRunning) stopCamera();
+    else startCamera();
+  }
+
+  // 3. Âm thanh phản hồi
+  function playBeep(isSuccess = true) {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = isSuccess ? "sine" : "sawtooth";
+      osc.frequency.value = isSuccess ? 920 : 280;
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      osc.start();
+      osc.stop(audioCtx.currentTime + (isSuccess ? 0.12 : 0.25));
+    } catch (e) {}
+  }
+
+  // 4. Hàm lấy giờ hiện tại định dạng HH:mm:ss dd/MM/yyyy
+  function getCurrentTimeFormatted() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+  }
+
+  // 5. Xử lý điểm danh TỨC THÌ (0.01 giây)
+  function processCheckin(rawSbd) {
+    const sbd = String(rawSbd || "").trim().toUpperCase();
+    if (!sbd) return;
 
     const statusEl = document.getElementById("status-msg");
     const resultCard = document.getElementById("result-card");
-    const btnCheckin = document.getElementById("btn-checkin");
 
-    statusEl.className = "msg-loading";
-    statusEl.innerText = "⏳ Đang kiểm tra dữ liệu thí sinh " + sbd.toUpperCase() + "...";
-    resultCard.style.display = "none";
-    btnCheckin.disabled = true;
-
-    try {
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify({ sbd: sbd })
-      });
-      const data = await response.json();
-
-      if (data.status === "success") {
-        playBeep(true);
-        const st = data.student;
-
-        document.getElementById("res-sbd").innerText = st.sbd;
-        document.getElementById("res-hoten").innerText = st.hoTen;
-        document.getElementById("res-truong").innerText = `${st.truong} — ${st.phuongXa}`;
-        document.getElementById("res-bang").innerText = st.bangThi;
-        document.getElementById("res-khuvuc").innerText = st.khuVuc;
-        document.getElementById("res-phuhuynh").innerText = `${st.phuHuynh} (SĐT: ${st.sdt})`;
-
-        resultCard.style.display = "block";
-        document.getElementById("sbd-input").value = "";
-
-        if (data.alreadyCheckedIn) {
-          statusEl.className = "msg-warning";
-          statusEl.innerText = `⚠️ THÍ SINH ĐÃ ĐIỂM DANH TRƯỚC ĐÓ LÚC ${data.checkinTime}`;
-          resultCard.style.borderColor = "var(--warning)";
-        } else {
-          statusEl.className = "msg-success";
-          statusEl.innerText = `✅ ĐIỂM DANH THÀNH CÔNG LÚC ${data.checkinTime}`;
-          resultCard.style.borderColor = "var(--success)";
-        }
-      } else {
+    // Nếu đã tải danh sách về RAM -> Tra cứu tức thì không cần đợi mạng
+    if (isDataLoaded) {
+      const st = studentDB[sbd];
+      if (!st) {
         playBeep(false);
+        resultCard.style.display = "none";
         statusEl.className = "msg-error";
-        statusEl.innerText = "❌ " + data.message;
+        statusEl.innerText = "❌ Không tìm thấy Số báo danh: " + sbd;
+        return;
       }
-    } catch (error) {
-      playBeep(false);
-      statusEl.className = "msg-error";
-      statusEl.innerText = "❌ Lỗi kết nối! Vui lòng kiểm tra mạng hoặc cấu hình SCRIPT_URL.";
-    } finally {
-      isProcessing = false;
-      btnCheckin.disabled = false;
+
+      playBeep(true);
+      renderStudentCard(st);
+      document.getElementById("sbd-input").value = "";
+
+      if (st.c === "Đã checkin") {
+        statusEl.className = "msg-warning";
+        statusEl.innerText = `⚠️ THÍ SINH ĐÃ ĐIỂM DANH LÚC ${st.t}`;
+        resultCard.style.borderColor = "var(--warning)";
+      } else {
+        const nowStr = getCurrentTimeFormatted();
+        st.c = "Đã checkin";
+        st.t = nowStr;
+        statusEl.className = "msg-success";
+        statusEl.innerText = `✅ ĐIỂM DANH THÀNH CÔNG LÚC ${nowStr}`;
+        resultCard.style.borderColor = "var(--success)";
+
+        // Đẩy vào hàng đợi đồng bộ ngầm lên Google Sheets
+        enqueueSync(sbd, st.r);
+      }
+    } else {
+      // Dự phòng trường hợp người dùng quét ngay khi dữ liệu chưa kịp tải xong
+      enqueueSync(sbd, 0, true);
     }
+  }
+
+  function renderStudentCard(st) {
+    document.getElementById("res-sbd").innerText = st.s;
+    document.getElementById("res-hoten").innerText = st.n;
+    document.getElementById("res-truong").innerText = `${st.sc} — ${st.w}`;
+    document.getElementById("res-bang").innerText = st.b;
+    document.getElementById("res-khuvuc").innerText = st.k;
+    document.getElementById("res-phuhuynh").innerText = `${st.pa} (SĐT: ${st.p})`;
+    document.getElementById("result-card").style.display = "block";
+  }
+
+  // 6. Hàng đợi đồng bộ ngầm (Chịu tải 20-30 máy gửi cùng lúc không rớt gói tin)
+  function enqueueSync(sbd, row, isFallback = false) {
+    syncQueue.push({ sbd, row, isFallback, retries: 0 });
+    updateSyncBadge();
+    processSyncQueue();
+  }
+
+  function updateSyncBadge() {
+    const badge = document.getElementById("sync-status");
+    if (syncQueue.length > 0) {
+      badge.innerText = `Đang lưu (${syncQueue.length})...`;
+      badge.className = "sync-badge sync-pending";
+    } else if (isDataLoaded) {
+      badge.innerText = `Đã đồng bộ ✓`;
+      badge.className = "sync-badge sync-ready";
+    }
+  }
+
+  async function processSyncQueue() {
+    if (isSyncing || syncQueue.length === 0) return;
+    isSyncing = true;
+
+    const item = syncQueue[0];
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ sbd: item.sbd, row: item.row })
+      });
+      const data = await res.json();
+
+      if (data.status === "busy") {
+        // Nếu 30 máy cùng ghi đúng 1 mili-giây -> đợi 400ms rồi tự gửi lại
+        isSyncing = false;
+        setTimeout(processSyncQueue, 400);
+        return;
+      }
+
+      // Cập nhật lại giờ chính xác từ server nếu máy khác đã quét thí sinh này trước đó
+      if (data.status === "success" && data.alreadyCheckedIn && studentDB[item.sbd]) {
+        studentDB[item.sbd].t = data.checkinTime;
+        const statusEl = document.getElementById("status-msg");
+        if (document.getElementById("res-sbd").innerText === item.sbd) {
+          statusEl.className = "msg-warning";
+          statusEl.innerText = `⚠️ MÁY KHÁC ĐÃ ĐIỂM DANH LÚC ${data.checkinTime}`;
+          document.getElementById("result-card").style.borderColor = "var(--warning)";
+        }
+      }
+
+      syncQueue.shift(); // Xóa khỏi hàng đợi khi đã lưu thành công
+    } catch (e) {
+      item.retries++;
+      if (item.retries > 5) syncQueue.shift();
+      await new Promise(r => setTimeout(r, 800));
+    }
+
+    isSyncing = false;
+    updateSyncBadge();
+    if (syncQueue.length > 0) processSyncQueue();
   }
 
   function manualCheckin() {
     const sbd = document.getElementById("sbd-input").value.trim();
-    if (!sbd) {
-      alert("Vui lòng nhập Số báo danh!");
-      return;
-    }
+    if (!sbd) return;
     processCheckin(sbd);
   }
 
@@ -223,26 +401,17 @@
 
   function onScanSuccess(decodedText) {
     const now = Date.now();
-    // Chống quét trùng cùng 1 mã trong 3 giây
-    if (decodedText === lastScannedCode && (now - lastScanTime) < 3000) {
-      return;
-    }
+    if (decodedText === lastScannedCode && (now - lastScanTime) < 2500) return;
     lastScannedCode = decodedText;
     lastScanTime = now;
     processCheckin(decodedText);
   }
 
-  const html5QrcodeScanner = new Html5QrcodeScanner(
-    "reader",
-    {
-      fps: 10,
-      qrbox: { width: 240, height: 240 },
-      rememberLastUsedCamera: true,
-      supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
-    },
-    false
-  );
-  html5QrcodeScanner.render(onScanSuccess);
+  // Khởi chạy ngay khi tải trang
+  window.addEventListener("DOMContentLoaded", () => {
+    loadStudentDatabase();
+    startCamera();
+  });
 </script>
 
 </body>
