@@ -56,7 +56,7 @@
       background: var(--purple); color: #fff; box-shadow: 0 2px 6px rgba(109,40,217,0.3);
     }
 
-    /* Khu vực nhập/chọn Phòng thi (Chỉ hiện khi ở chế độ Xếp Phòng) */
+    /* Khu vực nhập/chọn Phòng thi */
     #room-selector-box {
       display: none; background: #f5f3ff; border: 1.5px solid #c4b5fd;
       padding: 12px; border-radius: 10px; margin-bottom: 12px;
@@ -77,6 +77,7 @@
       display: flex; align-items: center; font-weight: 700; font-size: 0.9rem; white-space: nowrap;
     }
 
+    /* Camera */
     .camera-wrapper {
       position: relative; width: 100%; margin-bottom: 12px;
     }
@@ -99,6 +100,7 @@
     .btn-cam.active { background: var(--danger); }
     .btn-cam.off { background: var(--success); }
 
+    /* Nhập tay SBD */
     .manual-input {
       display: flex; gap: 8px; margin-bottom: 14px;
     }
@@ -112,6 +114,7 @@
       background-color: var(--primary); border: none; border-radius: 8px; cursor: pointer;
     }
 
+    /* Thông báo */
     #status-msg {
       text-align: center; font-weight: 700; margin-bottom: 14px; padding: 11px;
       border-radius: 8px; display: none; font-size: 0.96rem;
@@ -122,6 +125,7 @@
     .msg-warning { background: #fef3c7; color: var(--warning); display: block !important; }
     .msg-error { background: #fee2e2; color: var(--danger); display: block !important; }
 
+    /* Thẻ thông tin thí sinh */
     #result-card {
       display: none; border: 2.5px solid var(--success); border-radius: 12px;
       padding: 16px; background: #ffffff;
@@ -161,7 +165,7 @@
     <button id="btn-mode-room" class="mode-btn" onclick="setMode('room')">2. Xếp Phòng Thi</button>
   </div>
 
-  <!-- Ô nhập/chọn Phòng thi (hiện khi chọn chế độ 2) -->
+  <!-- Ô nhập/chọn Phòng thi -->
   <div id="room-selector-box">
     <label for="room-input">Nhập / Chọn Phòng thi đang phụ trách:</label>
     <div class="room-input-row">
@@ -182,6 +186,7 @@
     </div>
   </div>
 
+  <!-- Camera mặc định -->
   <div class="camera-wrapper">
     <div id="reader"></div>
     <div id="cam-placeholder" class="camera-off-placeholder">📷 Camera đang tắt</div>
@@ -190,13 +195,16 @@
     </div>
   </div>
 
+  <!-- Nhập SBD thủ công -->
   <div class="manual-input">
     <input type="text" id="sbd-input" class="sbd-field" placeholder="Nhập SBD (VD: S1550125)..." autocomplete="off" />
     <button class="btn-submit" id="btn-action" onclick="manualCheckin()">Điểm danh</button>
   </div>
 
+  <!-- Thông báo -->
   <div id="status-msg"></div>
 
+  <!-- Thẻ kết quả hiển thị -->
   <div id="result-card">
     <div class="sbd-box">
       <span class="label">Số báo danh</span>
@@ -227,13 +235,12 @@
 </div>
 
 <script>
-  // DÁN LINK WEB APP GOOGLE APPS SCRIPT CỦA BẠN VÀO ĐÂY:
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypkQ23cOk3mjcAH1DNXy06yOw0rwXTEJhMKFlo5z3rYhUKbyo4cAvjuWuHwsb9jsiC/exec";
 
   let currentMode = "gate"; // "gate" | "room"
   let studentDB = {};
   let isDataLoaded = false;
-  let syncQueue = [];
+  let syncQueue = JSON.parse(localStorage.getItem("ELMO_SYNC_QUEUE") || "[]");
   let isSyncing = false;
 
   let html5QrCode = null;
@@ -241,7 +248,11 @@
   let lastScannedCode = "";
   let lastScanTime = 0;
 
-  // Chuyển đổi qua lại giữa Check-in Cổng và Xếp Phòng Thi
+  function saveQueueToStorage() {
+    localStorage.setItem("ELMO_SYNC_QUEUE", JSON.stringify(syncQueue));
+  }
+
+  // Chuyển đổi chế độ Check-in Cổng / Xếp Phòng Thi
   function setMode(mode) {
     currentMode = mode;
     const btnGate = document.getElementById("btn-mode-gate");
@@ -272,7 +283,6 @@
     updateRoomCounter();
   }
 
-  // Đếm tự động số thí sinh đã được xếp vào phòng đang chọn (giúp giám thị biết khi nào đủ sĩ số phòng)
   function updateRoomCounter() {
     const roomName = document.getElementById("room-input").value.trim().toLowerCase();
     const badge = document.getElementById("room-count-badge");
@@ -296,10 +306,20 @@
       const json = await res.json();
       if (json.status === "success") {
         studentDB = json.data;
+        for (const item of syncQueue) {
+          if (studentDB[item.sbd]) {
+            studentDB[item.sbd].c = "Đã checkin";
+            if (item.mode === "room" && item.room) {
+              studentDB[item.sbd].rm = item.room;
+            }
+          }
+        }
         isDataLoaded = true;
         const count = Object.keys(studentDB).length;
-        badge.innerText = `Sẵn sàng (${count} TS)`;
-        badge.className = "sync-badge sync-ready";
+        if (syncQueue.length === 0) {
+          badge.innerText = `Sẵn sàng (${count} TS)`;
+          badge.className = "sync-badge sync-ready";
+        }
         updateRoomCounter();
       } else {
         badge.innerText = "Lỗi tải DS";
@@ -418,7 +438,6 @@
       document.getElementById("sbd-input").value = "";
 
       if (currentMode === "room") {
-        // CHẾ ĐỘ XẾP PHÒNG THI (Cột U)
         const prevRoom = st.rm;
         if (!st.c) {
           st.c = "Đã checkin";
@@ -440,7 +459,6 @@
 
         enqueueSync(sbd, st.r, "room", roomName);
       } else {
-        // CHẾ ĐỘ CHECK-IN CỔNG (Cột S & T)
         renderStudentCard(st);
         if (st.c === "Đã checkin") {
           statusEl.className = "msg-warning";
@@ -460,7 +478,7 @@
       return;
     }
 
-    // Dự phòng nếu chưa tải xong RAM
+    // Dự phòng gọi trực tiếp khi chưa tải xong RAM
     statusEl.className = "msg-loading";
     statusEl.innerText = "⏳ Đang xử lý SBD " + sbd + "...";
     resultCard.style.display = "none";
@@ -524,8 +542,10 @@
     document.getElementById("result-card").style.display = "block";
   }
 
+  // Hàng đợi lưu vào localStorage & tự phục hồi vô hạn khi rớt mạng
   function enqueueSync(sbd, row, mode, room) {
-    syncQueue.push({ sbd, row, mode, room, retries: 0 });
+    syncQueue.push({ sbd, row, mode, room });
+    saveQueueToStorage();
     updateSyncBadge();
     processSyncQueue();
   }
@@ -562,21 +582,19 @@
 
       if (data.status === "busy") {
         isSyncing = false;
-        setTimeout(processSyncQueue, 400);
+        setTimeout(processSyncQueue, 500);
         return;
       }
 
       syncQueue.shift();
+      saveQueueToStorage();
     } catch (e) {
-      item.retries++;
-      if (item.retries > 5) {
-        syncQueue.shift();
-        const badge = document.getElementById("sync-status");
-        badge.innerText = "Lỗi lưu Sheet!";
-        badge.className = "sync-badge sync-error";
-      } else {
-        await new Promise(r => setTimeout(r, 800));
-      }
+      const badge = document.getElementById("sync-status");
+      badge.innerText = `Chờ mạng (${syncQueue.length})...`;
+      badge.className = "sync-badge sync-error";
+      isSyncing = false;
+      setTimeout(processSyncQueue, 2000);
+      return;
     }
 
     isSyncing = false;
@@ -603,7 +621,6 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    // Khôi phục chế độ và tên phòng đã chọn trước đó trên điện thoại giám thị
     const savedRoom = localStorage.getItem("ELMO_ROOM_NAME");
     if (savedRoom) document.getElementById("room-input").value = savedRoom;
 
@@ -611,6 +628,7 @@
     if (savedMode === "room") setMode("room");
 
     loadStudentDatabase();
+    processSyncQueue();
     startCamera();
   });
 </script>
